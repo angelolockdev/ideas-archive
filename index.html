@@ -1,576 +1,275 @@
 <!DOCTYPE html>
-<html lang="fr" data-theme="dark">
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Ideas Archive — Meilleures idees applicatives</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ideas Archive — Archive des idees applicatives</title>
 <meta name="description" content="Archive des meilleures idees applicatives — filtrage, visualisation, coups de coeur">
-<meta property="og:title" content="Ideas Archive">
-<meta property="og:description" content="Archive des meilleures idees applicatives">
-<meta property="og:type" content="website">
-<meta name="theme-color" content="#0d1117">
+<meta name="theme-color" content="#0b0f1a">
 <style>
-/* ===== RESET & BASE ===== */
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-:root {
-  --bg: #0b0f1a;
-  --bg2: #111827;
-  --card: #1a1f2e;
-  --card-hover: #1f2537;
-  --border: #2a3040;
-  --border-light: #374151;
-  --text: #f0f2f5;
-  --text2: #9ca3af;
-  --text3: #6b7280;
-  --accent: #60a5fa;
-  --accent-glow: rgba(96,165,250,.15);
-  --green: #34d399;
-  --orange: #f59e0b;
-  --red: #ef4444;
-  --purple: #a78bfa;
-  --teal: #2dd4bf;
-  --pink: #f472b6;
-  --gradient: linear-gradient(135deg, #60a5fa, #a78bfa);
-  --radius: 12px;
-  --radius-sm: 8px;
-  --shadow: 0 1px 3px rgba(0,0,0,.3), 0 1px 2px rgba(0,0,0,.2);
-  --shadow-lg: 0 10px 25px rgba(0,0,0,.4);
+/* ===== DESIGN SYSTEM ===== */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --cvs:#0b0f1a;--bg:#111827;--crd:#1a1f2e;--crd-h:#1f2537;
+  --brd:#2a3040;--brd-l:#374151;
+  --txt:#f0f2f5;--txt2:#9ca3af;--txt3:#6b7280;
+  --ac:#60a5fa;--ac-g:rgba(96,165,250,.12);--ac-h:#3b82f6;
+  --gr:#34d399;--gr-g:rgba(52,211,153,.12);
+  --or:#f59e0b;--or-g:rgba(245,158,11,.12);
+  --pu:#a78bfa;--pu-g:rgba(167,139,250,.12);
+  --te:#2dd4bf;--re:#ef4444;--pi:#f472b6;
+  --rd:12px;--rd-sm:8px;--rd-xs:6px;
+  --sh:0 1px 3px rgba(0,0,0,.3);
+  --sh-lg:0 10px 25px rgba(0,0,0,.4);
+  --nav-h:56px;
+  --tr:color .2s,background .2s,border-color .2s,box-shadow .2s;
 }
-html { scroll-behavior: smooth; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  line-height: 1.5;
+[data-theme=light]{
+  --cvs:#faf9f7;--bg:#f3f4f6;--crd:#fff;--crd-h:#f9fafb;
+  --brd:#e5e7eb;--brd-l:#d1d5db;
+  --txt:#111827;--txt2:#4b5563;--txt3:#9ca3af;
+  --sh:0 1px 3px rgba(0,0,0,.08);
+  --sh-lg:0 10px 25px rgba(0,0,0,.1);
 }
-::selection { background: var(--accent); color: #fff; }
-
-/* ===== CONTAINER ===== */
-.container { max-width: 1320px; margin: 0 auto; padding: 0 24px; }
+html{scroll-behavior:smooth}
+body{
+  font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--cvs);color:var(--txt);
+  min-height:100vh;line-height:1.5;
+  transition:var(--tr);
+}
+::selection{background:var(--ac);color:#fff}
 
 /* ===== NAV ===== */
-nav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: rgba(11,15,26,.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
-  padding: 0 24px;
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(11,15,26,.85);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--brd);
+  transition:var(--tr);
 }
-.nav-inner {
-  max-width: 1320px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 56px;
-  gap: 16px;
+[data-theme=light] nav{background:rgba(250,249,247,.85)}
+.nav-inner{
+  max-width:1320px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  height:var(--nav-h);padding:0 24px;
 }
-.nav-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 700;
-  font-size: 16px;
-  color: var(--text);
-  text-decoration: none;
+.nav-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;text-decoration:none;color:var(--txt)}
+.nav-brand svg{width:26px;height:26px;color:var(--ac)}
+.nav-brand span{background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-end{display:flex;align-items:center;gap:8px}
+.nav-end a{color:var(--txt2);text-decoration:none;font-size:13px;padding:6px 12px;border-radius:var(--rd-sm);transition:all .15s;display:flex;align-items:center;gap:6px}
+.nav-end a:hover{color:var(--txt);background:var(--crd)}
+.theme-btn{
+  display:flex;align-items:center;justify-content:center;
+  width:36px;height:36px;border-radius:var(--rd-sm);
+  border:1px solid var(--brd);background:var(--crd);color:var(--txt2);
+  cursor:pointer;font-size:16px;transition:all .15s;
 }
-.nav-brand svg { width: 28px; height: 28px; }
-.nav-brand span { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.nav-links a {
-  color: var(--text2);
-  text-decoration: none;
-  font-size: 13px;
-  padding: 6px 14px;
-  border-radius: 8px;
-  transition: all .15s;
-}
-.nav-links a:hover { color: var(--text); background: var(--card); }
-.nav-links .gh-link {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 13px;
-  color: var(--text2);
-}
-.nav-links .gh-link:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
+.theme-btn:hover{border-color:var(--ac);color:var(--ac)}
 
 /* ===== HERO ===== */
-.hero {
-  padding: 48px 0 36px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
+.hero{
+  padding:48px 0 32px;text-align:center;position:relative;overflow:hidden
 }
-.hero::before {
-  content: '';
-  position: absolute;
-  top: -120px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 600px;
-  height: 300px;
-  background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%);
-  pointer-events: none;
+.hero::before{
+  content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);
+  width:500px;height:250px;
+  background:radial-gradient(ellipse,var(--ac-g) 0%,transparent 70%);
+  pointer-events:none
 }
-.hero h1 {
-  font-size: 36px;
-  font-weight: 800;
-  letter-spacing: -.5px;
-  position: relative;
-}
-.hero h1 span { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.hero p {
-  color: var(--text2);
-  font-size: 15px;
-  max-width: 520px;
-  margin: 8px auto 0;
-  position: relative;
-}
+.hero h1{font-size:32px;font-weight:800;letter-spacing:-.5px;position:relative}
+.hero h1 span{background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--txt2);font-size:14px;margin:6px auto 0;position:relative}
+.hero p code{font-family:JetBrains Mono,monospace;font-size:13px;background:var(--crd);padding:2px 8px;border-radius:4px;border:1px solid var(--brd)}
 
-/* ===== STATS BAR ===== */
-.stats-bar {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 12px;
-  margin-bottom: 28px;
+/* ===== STATS ===== */
+.stats-bar{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;
+  margin-bottom:24px
 }
-.stat-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 14px 18px;
-  text-align: center;
-  transition: border-color .15s;
+.stat-card{
+  background:var(--crd);border:1px solid var(--brd);border-radius:var(--rd-sm);
+  padding:12px 16px;text-align:center;transition:var(--tr)
 }
-.stat-card:hover { border-color: var(--border-light); }
-.stat-card .num {
-  font-size: 24px;
-  font-weight: 800;
-  letter-spacing: -.5px;
-  line-height: 1.2;
-}
-.stat-card .label {
-  font-size: 11px;
-  color: var(--text3);
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  margin-top: 2px;
-}
-.stat-card .num.accent { color: var(--accent); }
-.stat-card .num.green { color: var(--green); }
-.stat-card .num.purple { color: var(--purple); }
-.stat-card .num.orange { color: var(--orange); }
+.stat-card:hover{border-color:var(--brd-l)}
+.stat-card .num{font-size:22px;font-weight:800;letter-spacing:-.5px;line-height:1.2}
+.stat-card .label{font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
 
 /* ===== FILTERS ===== */
-.filters-wrap {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px 20px;
-  margin-bottom: 24px;
+.fw{
+  background:var(--crd);border:1px solid var(--brd);border-radius:var(--rd);
+  padding:14px 18px;margin-bottom:24px;transition:var(--tr)
 }
-.filters-row {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  align-items: center;
+.fr{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fr select,.fr .sw input{
+  padding:7px 10px;border-radius:var(--rd-xs);border:1px solid var(--brd);
+  background:var(--bg);color:var(--txt);font-size:12.5px;cursor:pointer;
+  transition:border-color .15s;min-width:0
 }
-.filters-row select, .filters-row .search-wrap input {
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--bg2);
-  color: var(--text);
-  font-size: 13px;
-  cursor: pointer;
-  transition: border-color .15s;
-  min-width: 0;
+.fr select:hover,.fr .sw input:hover{border-color:var(--brd-l)}
+.fr select:focus,.fr .sw input:focus{outline:none;border-color:var(--ac)}
+.sw{position:relative;flex:1;min-width:140px;max-width:220px}
+.sw input{width:100%;padding-left:28px}
+.sw .si{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--txt3);font-size:13px;pointer-events:none}
+.fs{margin-left:auto;font-size:12px;color:var(--txt3);white-space:nowrap}
+.bt{
+  display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--txt2);
+  cursor:pointer;padding:5px 10px;border-radius:var(--rd-xs);
+  border:1px solid var(--brd);background:var(--bg);transition:all .15s;user-select:none
 }
-.filters-row select:hover, .filters-row .search-wrap input:hover { border-color: var(--border-light); }
-.filters-row select:focus, .filters-row .search-wrap input:focus { outline: none; border-color: var(--accent); }
-.search-wrap {
-  position: relative;
-  flex: 1;
-  min-width: 160px;
-  max-width: 260px;
-}
-.search-wrap input {
-  width: 100%;
-  padding-left: 32px;
-}
-.search-icon {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text3);
-  font-size: 14px;
-  pointer-events: none;
-}
-.filter-stats {
-  margin-left: auto;
-  font-size: 12px;
-  color: var(--text3);
-  white-space: nowrap;
-}
-.best-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--text2);
-  cursor: pointer;
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--bg2);
-  transition: all .15s;
-  user-select: none;
-}
-.best-toggle:hover { border-color: var(--orange); }
-.best-toggle.active { background: rgba(245,158,11,.1); border-color: var(--orange); }
-.best-toggle input { display: none; }
-.best-toggle .star-icon { font-size: 14px; }
-.best-toggle.active .star-icon { color: var(--orange); }
+.bt:hover{border-color:var(--or)}
+.bt.on{background:var(--or-g);border-color:var(--or)}
+.bt input{display:none}
+.bt .star-icon{font-size:13px}
+.bt.on .star-icon{color:var(--or)}
 
-/* ===== MONTH SECTIONS ===== */
-.month-section { margin-bottom: 32px; }
-.month-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border);
+/* ===== MONTH ===== */
+.ms{margin-bottom:28px}
+.mh{
+  display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:8px;
+  border-bottom:1px solid var(--brd)
 }
-.month-header h2 {
-  font-size: 18px;
-  font-weight: 700;
-}
-.month-header .count {
-  font-size: 13px;
-  color: var(--text3);
-  font-weight: 400;
-}
-.month-line {
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
+.mh h2{font-size:17px;font-weight:700}
+.mh .cnt{font-size:13px;color:var(--txt3);font-weight:400}
+.mh .ml{flex:1;height:1px;background:var(--brd)}
 
 /* ===== GRID ===== */
-.ideas-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-  gap: 16px;
+.gd{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+.ic{
+  background:var(--crd);border:1px solid var(--brd);border-radius:var(--rd);
+  padding:18px;transition:all .2s;position:relative;cursor:default;
+  animation:ci .3s ease both
 }
-.idea-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  transition: all .2s;
-  position: relative;
-  cursor: default;
-  animation: cardIn .3s ease both;
-}
-@keyframes cardIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.idea-card:nth-child(1) { animation-delay: 0ms; }
-.idea-card:nth-child(2) { animation-delay: 40ms; }
-.idea-card:nth-child(3) { animation-delay: 80ms; }
-.idea-card:nth-child(4) { animation-delay: 120ms; }
-.idea-card:nth-child(5) { animation-delay: 160ms; }
-
-.idea-card:hover {
-  border-color: var(--accent);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0,0,0,.3);
-  background: var(--card-hover);
-}
+@keyframes ci{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.ic:hover{border-color:var(--ac);transform:translateY(-2px);box-shadow:var(--sh-lg);background:var(--crd-h)}
+[data-theme=light] .ic:hover{background:var(--crd-h)}
 
 /* Badges */
-.card-badges {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
+.cb{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.cbd{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:2px 8px;border-radius:5px;font-size:10.5px;font-weight:600;
+  background:var(--bg);color:var(--txt2);border:1px solid var(--brd)
 }
-.card-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 10px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 600;
-  background: var(--bg2);
-  color: var(--text2);
-  border: 1px solid var(--border);
-}
-.card-badge.mada { background: rgba(52,211,153,.1); color: var(--green); border-color: rgba(52,211,153,.2); }
-.card-badge.global { background: rgba(96,165,250,.1); color: var(--accent); border-color: rgba(96,165,250,.2); }
-.card-badge.self-improving { background: rgba(167,139,250,.1); color: var(--purple); border-color: rgba(167,139,250,.2); }
-
-/* Category badge */
-.cat-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 10px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 600;
-}
-.cat-productivity { background: rgba(52,211,153,.12); color: var(--green); }
-.cat-ai { background: rgba(167,139,250,.12); color: var(--purple); }
-.cat-fintech { background: rgba(245,158,11,.12); color: var(--orange); }
-.cat-health { background: rgba(45,212,191,.12); color: var(--teal); }
-.cat-transport { background: rgba(96,165,250,.12); color: var(--accent); }
-.cat-climate { background: rgba(52,211,153,.12); color: var(--green); }
-.cat-social { background: rgba(239,68,68,.12); color: var(--red); }
-.cat-edtech { background: rgba(245,158,11,.12); color: var(--orange); }
-.cat-devtools { background: rgba(167,139,250,.12); color: var(--purple); }
-.cat-iot { background: rgba(45,212,191,.12); color: var(--teal); }
-.cat-other { background: rgba(156,163,175,.12); color: var(--text2); }
+.cbd.mada{background:var(--gr-g);color:var(--gr);border-color:rgba(52,211,153,.2)}
+.cbd.global{background:var(--ac-g);color:var(--ac);border-color:rgba(96,165,250,.2)}
+.cbd.si{background:var(--pu-g);color:var(--pu);border-color:rgba(167,139,250,.2)}
+.cat-badge{padding:2px 8px;border-radius:5px;font-size:10.5px;font-weight:600}
 
 /* Card content */
-.idea-card .card-title {
-  font-size: 17px;
-  font-weight: 700;
-  margin-bottom: 4px;
-  color: var(--text);
-  line-height: 1.3;
+.ic .ct{font-size:16px;font-weight:700;margin-bottom:3px;line-height:1.3}
+.ic .cd{font-size:11.5px;color:var(--txt3);margin-bottom:6px}
+.ic .cdesc{
+  font-size:13px;line-height:1.5;color:var(--txt2);margin-bottom:10px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden
 }
-.idea-card .card-date {
-  font-size: 12px;
-  color: var(--text3);
-  margin-bottom: 8px;
-}
-.idea-card .card-desc {
-  font-size: 13px;
-  line-height: 1.55;
-  color: var(--text2);
-  margin-bottom: 12px;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.idea-card .card-meta {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-}
-.idea-card .card-meta span {
-  font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 4px;
-  background: var(--bg2);
-  color: var(--text3);
-  border: 1px solid var(--border);
+.ic .cm{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.ic .cm span{
+  font-size:11px;padding:2px 7px;border-radius:4px;
+  background:var(--bg);color:var(--txt3);border:1px solid var(--brd)
 }
 
-/* Star button */
-.star-btn {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text3);
-  font-size: 15px;
-  cursor: pointer;
-  transition: all .2s;
+/* Star */
+.sb{
+  position:absolute;top:12px;right:12px;
+  display:flex;align-items:center;justify-content:center;
+  width:30px;height:30px;border-radius:var(--rd-xs);
+  background:transparent;border:1px solid var(--brd);color:var(--txt3);
+  font-size:14px;cursor:pointer;transition:all .2s
 }
-.star-btn:hover {
-  background: rgba(245,158,11,.1);
-  border-color: var(--orange);
-  color: var(--orange);
-  transform: scale(1.1);
-}
-.star-btn.starred {
-  background: rgba(245,158,11,.15);
-  border-color: var(--orange);
-  color: var(--orange);
-  box-shadow: 0 0 12px rgba(245,158,11,.2);
-}
+.sb:hover{background:var(--or-g);border-color:var(--or);color:var(--or);transform:scale(1.1)}
+.sb.on{background:var(--or-g);border-color:var(--or);color:var(--or)}
 
 /* Expand */
-.card-expand-btn {
-  background: none;
-  border: none;
-  color: var(--accent);
-  font-size: 12px;
-  cursor: pointer;
-  padding: 0;
-  font-weight: 500;
-  transition: opacity .15s;
+.ceb{
+  background:none;border:none;color:var(--ac);font-size:11.5px;
+  cursor:pointer;padding:0;font-weight:500;transition:opacity .15s
 }
-.card-expand-btn:hover { opacity: .8; }
-.card-details {
-  display: none;
-  margin-top: 12px;
-  padding-top: 14px;
-  border-top: 1px solid var(--border);
-  animation: detailsIn .2s ease;
+.ceb:hover{opacity:.8}
+.cdd{
+  display:none;margin-top:10px;padding-top:12px;
+  border-top:1px solid var(--brd);animation:di .2s ease
 }
-@keyframes detailsIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes di{from{opacity:0}to{opacity:1}}
+.cdd.on{display:block}
+.cdd .db{margin-bottom:8px}
+.cdd .db:last-child{margin-bottom:0}
+.cdd .dl{
+  font-size:10.5px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.5px;color:var(--txt3);margin-bottom:2px
 }
-.card-details.open { display: block; }
-.card-details .detail-block { margin-bottom: 10px; }
-.card-details .detail-block:last-child { margin-bottom: 0; }
-.card-details .detail-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  color: var(--text3);
-  margin-bottom: 2px;
-}
-.card-details .detail-value {
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--text2);
-}
+.cdd .dv{font-size:13px;line-height:1.5;color:var(--txt2)}
 
-/* Difficulty dots */
-.diff-dots { display: inline-flex; gap: 3px; }
-.diff-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-}
-.diff-dot.filled { background: var(--accent); }
-.diff-dot.empty { background: var(--border); }
+/* Diff dots */
+.dd{display:inline-flex;gap:2px}
+.dd span{width:7px;height:7px;border-radius:50%;display:inline-block}
+.dd .f{background:var(--ac)}
+.dd .e{background:var(--brd)}
 
-/* ===== EMPTY STATE ===== */
-.empty-state {
-  text-align: center;
-  padding: 80px 20px;
-}
-.empty-state .icon { font-size: 48px; margin-bottom: 12px; }
-.empty-state h3 { font-size: 18px; margin-bottom: 6px; }
-.empty-state p { color: var(--text3); font-size: 14px; }
-
-/* ===== LOADING ===== */
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 100px 20px;
-  gap: 16px;
-}
-.spinner {
-  width: 36px; height: 36px;
-  border: 3px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-.loading p { color: var(--text3); font-size: 14px; }
+/* ===== EMPTY / LOADING ===== */
+.empty{text-align:center;padding:80px 20px}
+.empty .ei{font-size:44px;margin-bottom:10px;opacity:.5}
+.empty h3{font-size:17px;margin-bottom:4px}
+.empty p{color:var(--txt3);font-size:13px}
+.loading{display:flex;flex-direction:column;align-items:center;padding:100px 20px;gap:14px}
+.spinner{width:32px;height:32px;border:3px solid var(--brd);border-top-color:var(--ac);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading p{color:var(--txt3);font-size:13px}
 
 /* ===== FOOTER ===== */
-footer {
-  text-align: center;
-  padding: 32px 0;
-  border-top: 1px solid var(--border);
-  margin-top: 48px;
-}
-footer p { font-size: 12px; color: var(--text3); }
-footer a { color: var(--accent); text-decoration: none; }
-footer a:hover { text-decoration: underline; }
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-  .hero h1 { font-size: 26px; }
-  .hero p { font-size: 14px; }
-  .filters-row { flex-direction: column; }
-  .filters-row select, .filters-row .search-wrap, .filters-row .best-toggle { width: 100%; max-width: 100%; }
-  .filter-stats { margin-left: 0; text-align: center; width: 100%; }
-  .ideas-grid { grid-template-columns: 1fr; }
-  .stats-bar { grid-template-columns: repeat(2, 1fr); }
-  .nav-links .gh-link span { display: none; }
-}
-@media (max-width: 480px) {
-  .hero { padding: 32px 0 24px; }
-  .hero h1 { font-size: 22px; }
-  .container { padding: 0 16px; }
-  .stats-bar { grid-template-columns: repeat(2, 1fr); }
-}
+footer{text-align:center;padding:28px 0;border-top:1px solid var(--brd);margin-top:40px}
+footer p{font-size:12px;color:var(--txt3)}
+footer a{color:var(--ac);text-decoration:none}
+footer a:hover{text-decoration:underline}
 
 /* ===== SCROLLBAR ===== */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+::-webkit-scrollbar{width:7px}
+::-webkit-scrollbar-track{background:var(--cvs)}
+::-webkit-scrollbar-thumb{background:var(--brd);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--brd-l)}
+@media(max-width:768px){
+  .hero h1{font-size:24px}
+  .fr{flex-direction:column}
+  .fr select,.sw,.bt{width:100%;max-width:100%}
+  .fs{margin-left:0;text-align:center;width:100%}
+  .gd{grid-template-columns:1fr}
+  .stats-bar{grid-template-columns:repeat(2,1fr)}
+}
 </style>
 </head>
 <body>
 <nav>
   <div class="nav-inner">
     <a href="#" class="nav-brand">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
-      </svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
       <span>Ideas Archive</span>
     </a>
-    <div class="nav-links">
-      <a href="https://github.com/angelolockdev/ideas-archive" target="_blank" class="gh-link">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.06.58 1.21.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-        <span>GitHub</span>
+    <div class="nav-end">
+      <a href="https://github.com/angelolockdev/ideas-archive" target="_blank">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.06.58 1.21.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
       </a>
+      <button class="theme-btn" id="theme-btn" title="Basculer theme">&#9680;</button>
     </div>
   </div>
 </nav>
 
-<div class="container">
-  <section class="hero">
-    <h1><span>Archive</span> des idees applicatives</h1>
-    <p>Les meilleures idees du channel <code>#cron-idees-apps</code> — archivees, classees, filtrées</p>
-  </section>
+<div class="hero">
+  <h1><span>Archive</span> des idees applicatives</h1>
+  <p>Les meilleures idees de <code>#cron-idees-apps</code> — archivees, classees, filtrees</p>
+</div>
 
+<div class="container" style="max-width:1320px;margin:0 auto;padding:0 24px">
   <div class="stats-bar" id="stats-bar">
-    <div class="stat-card"><div class="num accent" id="stat-total">—</div><div class="label">Idees</div></div>
-    <div class="stat-card"><div class="num orange" id="stat-starred">—</div><div class="label">Coups de coeur</div></div>
-    <div class="stat-card"><div class="num purple" id="stat-mada">—</div><div class="label">Madagascar</div></div>
-    <div class="stat-card"><div class="num green" id="stat-global">—</div><div class="label">Global</div></div>
+    <div class="stat-card"><div class="num" style="color:var(--ac)" id="s-total">—</div><div class="label">Idees</div></div>
+    <div class="stat-card"><div class="num" style="color:var(--or)" id="s-starred">—</div><div class="label">Coups de coeur</div></div>
+    <div class="stat-card"><div class="num" style="color:var(--pu)" id="s-mada">—</div><div class="label">Madagascar</div></div>
+    <div class="stat-card"><div class="num" style="color:var(--gr)" id="s-global">—</div><div class="label">Global</div></div>
   </div>
 
-  <div class="filters-wrap">
-    <div class="filters-row">
-      <select id="month-filter">
-        <option value="all">Tous les mois</option>
-      </select>
-      <select id="category-filter">
+  <div class="fw">
+    <div class="fr">
+      <select id="f-month"><option value="all">Tous les mois</option></select>
+      <select id="f-cat">
         <option value="all">Toutes categories</option>
         <option value="productivity">Productivite</option>
         <option value="ai">IA / ML</option>
@@ -584,211 +283,173 @@ footer a:hover { text-decoration: underline; }
         <option value="iot">IoT</option>
         <option value="other">Autre</option>
       </select>
-      <select id="region-filter">
-        <option value="all">Toutes regions</option>
-        <option value="global">Global</option>
-        <option value="madagascar">Madagascar</option>
-      </select>
-      <select id="source-filter">
-        <option value="all">Toutes sources</option>
-        <option value="idees-matin">Idees du matin</option>
-        <option value="self-improving">Self-Improving</option>
-      </select>
-      <div class="search-wrap">
-        <span class="search-icon">&#128269;</span>
-        <input type="text" id="search-input" placeholder="Rechercher..." autocomplete="off">
-      </div>
-      <label class="best-toggle" id="best-toggle-label">
-        <input type="checkbox" id="best-only">
-        <span class="star-icon">&#9733;</span>
-        Meilleures idees
-      </label>
-      <span class="filter-stats" id="filter-stats"></span>
+      <select id="f-region"><option value="all">Toutes regions</option><option value="global">Global</option><option value="madagascar">Madagascar</option></select>
+      <select id="f-source"><option value="all">Toutes sources</option><option value="idees-matin">Idees du matin</option><option value="self-improving">Self-Improving</option></select>
+      <div class="sw"><span class="si">&#128269;</span><input type="text" id="f-search" placeholder="Rechercher..." autocomplete="off"></div>
+      <label class="bt" id="bt-label"><input type="checkbox" id="bt-only"><span class="star-icon">&#9733;</span> Meilleures</label>
+      <span class="fs" id="f-stats"></span>
     </div>
   </div>
 
-  <div id="content">
-    <div class="loading">
-      <div class="spinner"></div>
-      <p>Chargement des idees...</p>
-    </div>
-  </div>
+  <div id="content"><div class="loading"><div class="spinner"></div><p>Chargement des idees...</p></div></div>
 </div>
 
-<footer>
-  <p>Ideas Archive — <a href="https://github.com/angelolockdev/ideas-archive" target="_blank">angelolockdev/ideas-archive</a></p>
-</footer>
+<footer><p>Ideas Archive — <a href="https://github.com/angelolockdev/ideas-archive" target="_blank">angelolockdev/ideas-archive</a></p></footer>
 
 <script>
-let allData = { ideas: [] };
+// ===== DATA =====
+const MONTHS_FR = ['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'];
+const CATEGORIES = {productivity:'Productivite',ai:'IA / ML',fintech:'Fintech',health:'Sante',transport:'Transport',climate:'Climat',social:'Social',edtech:'Education',devtools:'DevTools',iot:'IoT',other:'Autre'};
+const CAT_COLORS = {productivity:'#34d399',ai:'#a78bfa',fintech:'#f59e0b',health:'#2dd4bf',transport:'#60a5fa',climate:'#34d399',social:'#ef4444',edtech:'#f59e0b',devtools:'#a78bfa',iot:'#2dd4bf',other:'#9ca3af'};
+const CAT_ICONS = {productivity:'&#9889;',ai:'&#129302;',fintech:'&#128176;',health:'&#10084;&#65039;',transport:'&#128662;',climate:'&#127758;',social:'&#128101;',edtech:'&#127891;',devtools:'&#128295;',iot:'&#127961;',other:'&#128161;'};
 
-async function loadAllMonths() {
-  const months = ['2026-07'];
-  const allMonths = [];
-  for (const m of months) {
-    try {
-      const resp = await fetch(`data/${m}.json`);
-      if (resp.ok) {
-        const data = await resp.json();
-        data._month = m;
-        allMonths.push(data);
-      }
-    } catch(e) {}
+let allIdeas = [];
+let allMonths = ['2026-07','2026-06']; // add months here as they're created
+
+// ===== THEME =====
+(function(){
+  const t = localStorage.getItem('ia-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+  const meta = document.querySelector('meta[name=theme-color]');
+  if(meta) meta.content = t==='light'?'#faf9f7':'#0b0f1a';
+})();
+
+document.getElementById('theme-btn').onclick = function(){
+  const html = document.documentElement;
+  const cur = html.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('ia-theme', next);
+  const meta = document.querySelector('meta[name=theme-color]');
+  if(meta) meta.content = next==='light'?'#faf9f7':'#0b0f1a';
+};
+
+// ===== LOAD DATA =====
+async function load(){
+  for(const m of allMonths){
+    try{
+      const r = await fetch(`data/${m}.json`);
+      if(r.ok){const d=await r.json();d._m=m;allIdeas=allIdeas.concat(d.ideas||[]);}
+    }catch(e){}
   }
-  allData.ideas = allMonths.flatMap(m => m.ideas || []);
+  allMonths = [...new Set(allIdeas.map(i=>i.date.substring(0,7)))].sort().reverse();
   render();
 }
 
-function getMonthLabel(ym) {
-  const months = ['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'];
-  const parts = ym.split('-');
-  return `${months[parseInt(parts[1])-1]} ${parts[0]}`;
+function mlabel(ym){const p=ym.split('-');return `${MONTHS_FR[parseInt(p[1])-1]} ${p[0]}`;}
+
+function render(){
+  const ideas=allIdeas;
+  for(const[id,el] of [['s-total',ideas.length],['s-starred',ideas.filter(i=>i.status==='starred').length],['s-mada',ideas.filter(i=>i.region==='madagascar').length],['s-global',ideas.filter(i=>i.region==='global').length]])
+    document.getElementById(id).textContent=el;
+
+  const sel=document.getElementById('f-month');
+  sel.innerHTML='<option value="all">Tous les mois</option>';
+  allMonths.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=mlabel(m);sel.appendChild(o);});
+  apply();
 }
 
-function render() {
-  const ideas = allData.ideas;
-  document.getElementById('stat-total').textContent = ideas.length;
-  document.getElementById('stat-starred').textContent = ideas.filter(i => i.status === 'starred').length;
-  document.getElementById('stat-mada').textContent = ideas.filter(i => i.region === 'madagascar').length;
-  document.getElementById('stat-global').textContent = ideas.filter(i => i.region === 'global').length;
+function apply(){
+  const month=document.getElementById('f-month').value;
+  const cat=document.getElementById('f-cat').value;
+  const region=document.getElementById('f-region').value;
+  const source=document.getElementById('f-source').value;
+  const query=document.getElementById('f-search').value.toLowerCase().trim();
+  const best=document.getElementById('bt-only').checked;
 
-  const months = [...new Set(ideas.map(i => i.date.substring(0,7)))].sort().reverse();
-  const sel = document.getElementById('month-filter');
-  sel.innerHTML = '<option value="all">Tous les mois</option>';
-  months.forEach(m => { const o = document.createElement('option'); o.value = m; o.textContent = getMonthLabel(m); sel.appendChild(o); });
-  applyFilters();
-}
+  let f=allIdeas.filter(i=>{
+    if(month!=='all'&&i.date.substring(0,7)!==month)return false;
+    if(cat!=='all'&&i.category!==cat)return false;
+    if(region!=='all'&&i.region!==region)return false;
+    if(source!=='all'&&i.source!==source)return false;
+    if(query&&!(i.title||'').toLowerCase().includes(query)&&!(i.description||'').toLowerCase().includes(query)&&!(i.problem||'').toLowerCase().includes(query))return false;
+    if(best&&i.status!=='starred')return false;
+    return true;
+  });
 
-function applyFilters() {
-  const month = document.getElementById('month-filter').value;
-  const cat = document.getElementById('category-filter').value;
-  const region = document.getElementById('region-filter').value;
-  const source = document.getElementById('source-filter').value;
-  const query = document.getElementById('search-input').value.toLowerCase().trim();
-  const bestOnly = document.getElementById('best-only').checked;
+  const groups={};
+  f.forEach(i=>{const m=i.date.substring(0,7);if(!groups[m])groups[m]=[];groups[m].push(i);});
+  const sm=Object.keys(groups).sort().reverse();
 
-  let filtered = [...allData.ideas];
-  if (month !== 'all') filtered = filtered.filter(i => i.date.substring(0,7) === month);
-  if (cat !== 'all') filtered = filtered.filter(i => i.category === cat);
-  if (region !== 'all') filtered = filtered.filter(i => i.region === region);
-  if (source !== 'all') filtered = filtered.filter(i => i.source === source);
-  if (query) filtered = filtered.filter(i => (i.title||'').toLowerCase().includes(query) || (i.description||'').toLowerCase().includes(query) || (i.problem||'').toLowerCase().includes(query));
-  if (bestOnly) filtered = filtered.filter(i => i.status === 'starred');
+  document.getElementById('f-stats').textContent=`${f.length} / ${allIdeas.length}`;
+  document.getElementById('bt-label').classList.toggle('on',best);
 
-  const groups = {};
-  filtered.forEach(i => { const m = i.date.substring(0,7); if (!groups[m]) groups[m] = []; groups[m].push(i); });
-  const sortedMonths = Object.keys(groups).sort().reverse();
-
-  document.getElementById('filter-stats').textContent = `${filtered.length} / ${allData.ideas.length} idees`;
-  document.getElementById('best-toggle-label').classList.toggle('active', bestOnly);
-
-  const el = document.getElementById('content');
-  if (filtered.length === 0) {
-    el.innerHTML = '<div class="empty-state"><div class="icon">&#128161;</div><h3>Aucune idee trouvee</h3><p>Essayez de modifier les filtres ou d\'elargir la recherche.</p></div>';
+  const el=document.getElementById('content');
+  if(!f.length){
+    el.innerHTML='<div class="empty"><div class="ei">&#128161;</div><h3>Aucune idee trouvee</h3><p>Essayez de modifier les filtres.</p></div>';
     return;
   }
 
-  let html = '';
-  sortedMonths.forEach(m => {
-    html += `<div class="month-section"><div class="month-header"><h2>${getMonthLabel(m)}</h2><span class="count">${groups[m].length} idee${groups[m].length>1?'s':''}</span><div class="month-line"></div></div><div class="ideas-grid">`;
-    groups[m].sort((a,b) => b.date.localeCompare(a.date)).forEach((idea, idx) => {
-      const isStarred = idea.status === 'starred';
-      const catClass = `cat-${idea.category||'other'}`;
-      let diffHtml = '';
-      if (idea.difficulty) {
-        diffHtml = '<span class="diff-dots">' + 
-          Array.from({length:5}, (_,i) => `<span class="diff-dot ${i<idea.difficulty?'filled':'empty'}"></span>`).join('') +
-          `</span>`;
+  let html='';
+  sm.forEach(m=>{
+    html+=`<div class="ms"><div class="mh"><h2>${mlabel(m)}</h2><span class="cnt">${groups[m].length} idee${groups[m].length>1?'s':''}</span><div class="ml"></div></div><div class="gd">`;
+    groups[m].sort((a,b)=>b.date.localeCompare(a.date)).forEach((idea,i)=>{
+      const st=idea.status==='starred';
+      const cc=CAT_COLORS[idea.category]||'#9ca3af';
+      const ci=CAT_ICONS[idea.category]||'&#128161;';
+      const rgl=idea.region==='madagascar'?'&#127470;&#127473; Mada':'&#127758; Global';
+      const rgc=idea.region==='madagascar'?'mada':'global';
+      let dhtml='';
+      if(idea.difficulty){
+        dhtml='<span class="dd">'+Array.from({length:5},(_,j)=>`<span class="${j<idea.difficulty?'f':'e'}"></span>`).join('')+'</span>';
       }
-      html += `
-        <div class="idea-card" data-id="${idea.id}" style="animation-delay:${(idx%5)*40}ms">
-          <button class="star-btn ${isStarred?'starred':''}" onclick="toggleStar('${idea.id}')" title="${isStarred?'Retirer des coups de coeur':'Ajouter aux coups de coeur'}">${isStarred?'&#9733;':'&#9734;'}</button>
-          <div class="card-badges">
-            <span class="card-badge ${catClass}">${catIcon(idea.category)} ${idea.category||'other'}</span>
-            <span class="card-badge ${idea.region==='madagascar'?'mada':'global'}">${idea.region==='madagascar'?'&#127470;&#127473; Mada':'&#127758; Global'}</span>
-            ${idea.source==='self-improving'?'<span class="card-badge self-improving">Self-Improving</span>':''}
+      html+=`
+        <div class="ic" data-id="${idea.id}" style="animation-delay:${(i%5)*40}ms">
+          <button class="sb ${st?'on':''}" onclick="ts('${idea.id}')">${st?'&#9733;':'&#9734;'}</button>
+          <div class="cb">
+            <span class="cat-badge" style="background:${cc}18;color:${cc}">${ci} ${CATEGORIES[idea.category]||idea.category}</span>
+            <span class="cbd ${rgc}">${rgl}</span>
+            ${idea.source==='self-improving'?'<span class="cbd si">Self-Improving</span>':''}
           </div>
-          <h3 class="card-title">${idea.title}</h3>
-          <div class="card-date">${formatDate(idea.date)}${idea.theme?' &middot; '+idea.theme:''}${diffHtml?' &middot; '+diffHtml:''}</div>
-          <p class="card-desc">${idea.description || idea.problem || ''}</p>
-          <div class="card-meta">
-            ${idea.market?`<span>&#127991; ${truncate(idea.market,45)}</span>`:''}
-            ${idea.revenue?`<span>&#128176; ${truncate(idea.revenue,40)}</span>`:''}
-            ${idea.stack?`<span>&#128295; ${truncate(idea.stack,35)}</span>`:''}
+          <div class="ct">${idea.title}</div>
+          <div class="cd">${fdate(idea.date)}${idea.theme?' &middot; '+idea.theme:''}${dhtml?' &middot; '+dhtml:''}</div>
+          <p class="cdesc">${idea.description||idea.problem||''}</p>
+          <div class="cm">
+            ${idea.market?`<span>&#127991; ${trunc(idea.market,40)}</span>`:''}
+            ${idea.revenue?`<span>&#128176; ${trunc(idea.revenue,35)}</span>`:''}
+            ${idea.stack?`<span>&#128295; ${trunc(idea.stack,30)}</span>`:''}
           </div>
-          <button class="card-expand-btn" onclick="toggleDetails('${idea.id}')">Voir plus &darr;</button>
-          <div class="card-details" id="details-${idea.id}">
-            ${idea.description?`<div class="detail-block"><div class="detail-label">Description</div><div class="detail-value">${idea.description}</div></div>`:''}
-            ${idea.problem?`<div class="detail-block"><div class="detail-label">Probleme resolu</div><div class="detail-value">${idea.problem}</div></div>`:''}
-            ${idea.market?`<div class="detail-block"><div class="detail-label">Marche cible</div><div class="detail-value">${idea.market}</div></div>`:''}
-            ${idea.revenue?`<div class="detail-block"><div class="detail-label">Modele de revenus</div><div class="detail-value">${idea.revenue}</div></div>`:''}
-            ${idea.stack?`<div class="detail-block"><div class="detail-label">Stack technique</div><div class="detail-value">${idea.stack}</div></div>`:''}
-            ${idea.why_now?`<div class="detail-block"><div class="detail-label">Pourquoi maintenant</div><div class="detail-value">${idea.why_now}</div></div>`:''}
-            ${idea.mvp_plan?`<div class="detail-block"><div class="detail-label">MVP</div><div class="detail-value">${idea.mvp_plan}</div></div>`:''}
+          <button class="ceb" onclick="td('${idea.id}')">Voir plus &darr;</button>
+          <div class="cdd" id="dd-${idea.id}">
+            ${idea.description?`<div class="db"><div class="dl">Description</div><div class="dv">${idea.description}</div></div>`:''}
+            ${idea.problem?`<div class="db"><div class="dl">Probleme</div><div class="dv">${idea.problem}</div></div>`:''}
+            ${idea.market?`<div class="db"><div class="dl">Marche</div><div class="dv">${idea.market}</div></div>`:''}
+            ${idea.revenue?`<div class="db"><div class="dl">Revenus</div><div class="dv">${idea.revenue}</div></div>`:''}
+            ${idea.stack?`<div class="db"><div class="dl">Stack</div><div class="dv">${idea.stack}</div></div>`:''}
+            ${idea.why_now?`<div class="db"><div class="dl">Pourquoi maintenant</div><div class="dv">${idea.why_now}</div></div>`:''}
+            ${idea.mvp_plan?`<div class="db"><div class="dl">MVP</div><div class="dv">${idea.mvp_plan}</div></div>`:''}
           </div>
         </div>`;
     });
-    html += '</div></div>';
+    html+='</div></div>';
   });
-  el.innerHTML = html;
+  el.innerHTML=html;
 }
 
-function catIcon(cat) {
-  const icons = {
-    'productivity':'&#9889;','ai':'&#129302;','fintech':'&#128176;','health':'&#10084;&#65039;',
-    'transport':'&#128662;','climate':'&#127758;','social':'&#128101;','edtech':'&#127891;',
-    'devtools':'&#128295;','iot':'&#127961;','other':'&#128161;'
-  };
-  return icons[cat] || icons['other'];
+function ts(id){
+  const i=allIdeas.find(x=>x.id===id);
+  if(!i)return;
+  i.status=i.status==='starred'?'pending':'starred';
+  apply();
+  document.getElementById('s-starred').textContent=allIdeas.filter(x=>x.status==='starred').length;
+  save();
+}
+function td(id){const el=document.getElementById('dd-'+id);if(el)el.classList.toggle('on');}
+function trunc(s,m){if(!s)return '';return s.length>m?s.substring(0,m)+'...':s;}
+function fdate(d){const p=d.split('-');return `${parseInt(p[2])} ${MONTHS_FR[parseInt(p[1])-1].substring(0,3)} ${p[0]}`;}
+function save(){try{localStorage.setItem('ia-stars',JSON.stringify(allIdeas.filter(i=>i.status==='starred').map(i=>i.id)))}catch(e){}}
+function loadStars(){
+  try{JSON.parse(localStorage.getItem('ia-stars')||'[]').forEach(id=>{const i=allIdeas.find(x=>x.id===id);if(i)i.status='starred';})}catch(e){}
 }
 
-function toggleStar(id) {
-  const idea = allData.ideas.find(i => i.id === id);
-  if (!idea) return;
-  idea.status = idea.status === 'starred' ? 'pending' : 'starred';
-  applyFilters();
-  document.getElementById('stat-starred').textContent = allData.ideas.filter(i => i.status === 'starred').length;
-  saveStars();
-}
+document.getElementById('f-month').addEventListener('change',apply);
+document.getElementById('f-cat').addEventListener('change',apply);
+document.getElementById('f-region').addEventListener('change',apply);
+document.getElementById('f-source').addEventListener('change',apply);
+document.getElementById('f-search').addEventListener('input',apply);
+document.getElementById('bt-only').addEventListener('change',apply);
 
-function toggleDetails(id) {
-  const el = document.getElementById('details-'+id);
-  if (el) el.classList.toggle('open');
-}
-
-function truncate(s, max) {
-  if (!s) return '';
-  return s.length > max ? s.substring(0, max) + '...' : s;
-}
-
-function formatDate(d) {
-  const p = d.split('-');
-  const months = ['Jan','Fev','Mar','Avr','Mai','Juin','Juil','Aou','Sep','Oct','Nov','Dec'];
-  return `${parseInt(p[2])} ${months[parseInt(p[1])-1]} ${p[0]}`;
-}
-
-function saveStars() {
-  const starred = allData.ideas.filter(i => i.status === 'starred').map(i => i.id);
-  try { localStorage.setItem('ideas-archive-stars', JSON.stringify(starred)); } catch(e) {}
-}
-
-function loadStars() {
-  try {
-    JSON.parse(localStorage.getItem('ideas-archive-stars') || '[]').forEach(id => {
-      const idea = allData.ideas.find(i => i.id === id);
-      if (idea) idea.status = 'starred';
-    });
-  } catch(e) {}
-}
-
-document.getElementById('month-filter').addEventListener('change', applyFilters);
-document.getElementById('category-filter').addEventListener('change', applyFilters);
-document.getElementById('region-filter').addEventListener('change', applyFilters);
-document.getElementById('source-filter').addEventListener('change', applyFilters);
-document.getElementById('search-input').addEventListener('input', applyFilters);
-document.getElementById('best-only').addEventListener('change', applyFilters);
-
-loadAllMonths().then(() => { loadStars(); applyFilters(); });
+load().then(()=>{loadStars();apply();});
 </script>
 </body>
 </html>
