@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ideas Archive</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --card: #161b22;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text2: #8b949e;
+  --accent: #58a6ff;
+  --green: #3fb950;
+  --orange: #d29922;
+  --red: #f85149;
+  --purple: #bc8cff;
+  --teal: #56d4dd;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+/* Header */
+header {
+  padding: 32px 0 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+.header-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+}
+header .subtitle {
+  color: var(--text2);
+  font-size: 14px;
+  margin-top: 4px;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--card);
+  border: 1px solid var(--border);
+}
+
+/* Filters */
+.filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  align-items: center;
+}
+.filters select, .filters input, .filters button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+.filters select:focus, .filters input:focus { outline: none; border-color: var(--accent); }
+.filters .stats { color: var(--text2); font-size: 13px; margin-left: auto; }
+.filters button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  transition: opacity .15s;
+}
+.filters button:hover { opacity: .85; }
+.filters button.active {
+  background: var(--purple);
+}
+.search-wrap { position: relative; }
+.search-wrap input { padding-left: 32px; width: 220px; }
+.search-wrap .icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text2);
+  font-size: 14px;
+}
+
+/* Stats bar */
+.stats-bar {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 120px;
+}
+.stat-card .num {
+  font-size: 22px;
+  font-weight: 700;
+}
+.stat-card .label { font-size: 12px; color: var(--text2); }
+
+/* Grid */
+.ideas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 16px;
+}
+.idea-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  transition: border-color .15s, transform .15s;
+  position: relative;
+  cursor: default;
+}
+.idea-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+.idea-card .badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.idea-card .badge {
+  font-size: 11px;
+  padding: 2px 8px;
+}
+.idea-card h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+.idea-card .date {
+  font-size: 12px;
+  color: var(--text2);
+  margin-bottom: 8px;
+}
+.idea-card p {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text2);
+  margin-bottom: 10px;
+}
+.idea-card .meta-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.idea-card .meta-tags span {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(88,166,255,.1);
+  color: var(--accent);
+}
+.idea-card .difficulty {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text2);
+}
+.idea-card .star-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  color: var(--text2);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.idea-card .star-btn.starred {
+  background: rgba(210,153,34,.15);
+  border-color: var(--orange);
+  color: var(--orange);
+}
+.idea-card .star-btn:hover {
+  border-color: var(--orange);
+  color: var(--orange);
+}
+
+/* Expand */
+.idea-card .expand-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 4px;
+}
+.idea-card .expand-btn:hover { text-decoration: underline; }
+.idea-card .details {
+  display: none;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.idea-card .details.open { display: block; }
+.idea-card .details strong { color: var(--text); font-size: 12px; display: block; margin-top: 8px; }
+.idea-card .details strong:first-child { margin-top: 0; }
+.idea-card .details p { font-size: 13px; margin-top: 2px; }
+
+/* Empty */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text2);
+}
+.empty-state h3 { font-size: 18px; margin-bottom: 8px; color: var(--text); }
+
+/* Month section */
+.month-header {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.month-header .count { font-size: 14px; font-weight: 400; color: var(--text2); }
+
+/* Best ideas toggle */
+.best-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text2);
+}
+.best-toggle input[type=checkbox] {
+  accent-color: var(--orange);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .ideas-grid { grid-template-columns: 1fr; }
+  .filters { flex-direction: column; }
+  .filters select, .filters input, .filters button { width: 100%; }
+  .search-wrap input { width: 100%; }
+  .search-wrap { width: 100%; }
+  .filters .stats { margin-left: 0; }
+  header h1 { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="header-top">
+      <h1>Ideas Archive</h1>
+      <span class="badge" id="total-ideas-badge">0 idees</span>
+    </div>
+    <div class="subtitle">Archive des meilleures idées applicatives — <span id="months-count">0</span> mois d'archives</div>
+  </header>
+
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-card"><div class="num" id="stat-total">0</div><div class="label">Idees</div></div>
+    <div class="stat-card"><div class="num" id="stat-starred">0</div><div class="label">Coups de coeur</div></div>
+    <div class="stat-card"><div class="num" id="stat-mada">0</div><div class="label">Madagascar</div></div>
+    <div class="stat-card"><div class="num" id="stat-global">0</div><div class="label">Global</div></div>
+  </div>
+
+  <div class="filters">
+    <select id="month-filter">
+      <option value="all">Tous les mois</option>
+    </select>
+    <select id="category-filter">
+      <option value="all">Toutes categories</option>
+      <option value="productivity">Productivite</option>
+      <option value="ai">IA / ML</option>
+      <option value="fintech">Fintech</option>
+      <option value="health">Sante / Bien-etre</option>
+      <option value="transport">Transport</option>
+      <option value="climate">Climat / Environnement</option>
+      <option value="social">Social / Communaute</option>
+      <option value="edtech">Education</option>
+      <option value="devtools">DevTools</option>
+      <option value="iot">IoT / Hardware</option>
+      <option value="other">Autre</option>
+    </select>
+    <select id="region-filter">
+      <option value="all">Toutes regions</option>
+      <option value="global">Global</option>
+      <option value="madagascar">Madagascar</option>
+    </select>
+    <select id="status-filter">
+      <option value="all">Tous les statuts</option>
+      <option value="pending">En attente</option>
+      <option value="starred">Coups de coeur</option>
+    </select>
+    <select id="source-filter">
+      <option value="all">Toutes sources</option>
+      <option value="idees-matin">Idees du matin</option>
+      <option value="self-improving">Self-Improving</option>
+    </select>
+    <div class="search-wrap">
+      <span class="icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="Rechercher..." autocomplete="off">
+    </div>
+    <div class="best-toggle">
+      <input type="checkbox" id="best-only">
+      <label for="best-only">Meilleures idees du mois</label>
+    </div>
+    <span class="stats" id="filter-stats">0 / 0 idees affichees</span>
+  </div>
+
+  <div id="content"></div>
+</div>
+
+<script>
+// Load JSON
+let allData = { ideas: [] };
+let currentMonthData = null;
+
+async function loadAllMonths() {
+  // Try current month first
+  const months = ['2026-07'];
+  const allMonths = [];
+  
+  for (const m of months) {
+    try {
+      const resp = await fetch(`data/${m}.json`);
+      if (resp.ok) {
+        const data = await resp.json();
+        data._month = m;
+        allMonths.push(data);
+      }
+    } catch(e) { /* month not found */ }
+  }
+  
+  // Merge
+  allData.ideas = allMonths.flatMap(m => m.ideas || []);
+  render();
+}
+
+function getMonthLabel(ym) {
+  const months = ['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'];
+  const parts = ym.split('-');
+  return `${months[parseInt(parts[1])-1]} ${parts[0]}`;
+}
+
+function render() {
+  const ideas = allData.ideas;
+  
+  // Stats
+  document.getElementById('stat-total').textContent = ideas.length;
+  const starred = ideas.filter(i => i.status === 'starred');
+  document.getElementById('stat-starred').textContent = starred.length;
+  document.getElementById('stat-mada').textContent = ideas.filter(i => i.region === 'madagascar').length;
+  document.getElementById('stat-global').textContent = ideas.filter(i => i.region === 'global').length;
+  document.getElementById('total-ideas-badge').textContent = `${ideas.length} idees`;
+  
+  // Months
+  const months = [...new Set(ideas.map(i => i.date.substring(0,7)))].sort().reverse();
+  document.getElementById('months-count').textContent = months.length;
+  
+  const monthSel = document.getElementById('month-filter');
+  monthSel.innerHTML = '<option value="all">Tous les mois</option>';
+  months.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m;
+    opt.textContent = getMonthLabel(m);
+    monthSel.appendChild(opt);
+  });
+  
+  applyFilters();
+}
+
+function applyFilters() {
+  const month = document.getElementById('month-filter').value;
+  const cat = document.getElementById('category-filter').value;
+  const region = document.getElementById('region-filter').value;
+  const status = document.getElementById('status-filter').value;
+  const source = document.getElementById('source-filter').value;
+  const query = document.getElementById('search-input').value.toLowerCase().trim();
+  const bestOnly = document.getElementById('best-only').checked;
+  
+  let filtered = [...allData.ideas];
+  
+  if (month !== 'all') filtered = filtered.filter(i => i.date.substring(0,7) === month);
+  if (cat !== 'all') filtered = filtered.filter(i => i.category === cat);
+  if (region !== 'all') filtered = filtered.filter(i => i.region === region);
+  if (status !== 'all') filtered = filtered.filter(i => i.status === status);
+  if (source !== 'all') filtered = filtered.filter(i => i.source === source);
+  if (query) filtered = filtered.filter(i =>
+    (i.title || '').toLowerCase().includes(query) ||
+    (i.description || '').toLowerCase().includes(query) ||
+    (i.problem || '').toLowerCase().includes(query)
+  );
+  if (bestOnly) filtered = filtered.filter(i => i.status === 'starred');
+  
+  // Group by month
+  const groups = {};
+  filtered.forEach(i => {
+    const m = i.date.substring(0,7);
+    if (!groups[m]) groups[m] = [];
+    groups[m].push(i);
+  });
+  
+  const sortedMonths = Object.keys(groups).sort().reverse();
+  
+  document.getElementById('filter-stats').textContent = `${filtered.length} / ${allData.ideas.length} idees affichees`;
+  
+  const content = document.getElementById('content');
+  
+  if (filtered.length === 0) {
+    content.innerHTML = '<div class="empty-state"><h3>Aucune idee trouvee</h3><p>Essayez de modifier les filtres ou d\'elargir la recherche.</p></div>';
+    return;
+  }
+  
+  let html = '';
+  sortedMonths.forEach(m => {
+    const count = bestOnly ? groups[m].length : groups[m].length;
+    html += `<div class="month-header">${getMonthLabel(m)} <span class="count">${count} idee${count > 1 ? 's' : ''}</span></div>`;
+    html += '<div class="ideas-grid">';
+    groups[m].sort((a,b) => b.date.localeCompare(a.date)).forEach(idea => {
+      const isStarred = idea.status === 'starred';
+      html += `
+        <div class="idea-card" data-id="${idea.id}">
+          <button class="star-btn ${isStarred ? 'starred' : ''}" onclick="toggleStar('${idea.id}')">${isStarred ? '&#9733;' : '&#9734;'}</button>
+          <div class="badges">
+            <span class="badge" style="background:${catColor(idea.category)}">${idea.category || 'other'}</span>
+            <span class="badge">${idea.region === 'madagascar' ? '&#127470;&#127473; Mada' : '&#127758; Global'}</span>
+            ${idea.source === 'self-improving' ? '<span class="badge" style="background:rgba(188,140,255,.15);color:var(--purple)">Self-Improving</span>' : ''}
+            ${idea.difficulty ? `<span class="badge">${'&#9898;'.repeat(idea.difficulty)}${'&#9899;'.repeat(5-idea.difficulty)}</span>` : ''}
+          </div>
+          <h3>${idea.title}</h3>
+          <div class="date">${formatDate(idea.date)} ${idea.source === 'self-improving' && idea.theme ? '&middot; ' + idea.theme : ''}</div>
+          <p>${truncate(idea.description || idea.problem || '', 180)}</p>
+          ${idea.market ? `<div class="meta-tags"><span>&#127991; ${truncate(idea.market, 50)}</span></div>` : ''}
+          <button class="expand-btn" onclick="toggleDetails('${idea.id}')">Voir plus &darr;</button>
+          <div class="details" id="details-${idea.id}">
+            ${idea.description ? `<strong>Description</strong><p>${idea.description}</p>` : ''}
+            ${idea.problem ? `<strong>Probleme resolu</strong><p>${idea.problem}</p>` : ''}
+            ${idea.market ? `<strong>Marche cible</strong><p>${idea.market}</p>` : ''}
+            ${idea.revenue ? `<strong>Modele de revenus</strong><p>${idea.revenue}</p>` : ''}
+            ${idea.stack ? `<strong>Stack technique</strong><p>${idea.stack}</p>` : ''}
+            ${idea.why_now ? `<strong>Pourquoi maintenant</strong><p>${idea.why_now}</p>` : ''}
+            ${idea.mvp_plan ? `<strong>MVP 1 semaine</strong><p>${idea.mvp_plan}</p>` : ''}
+          </div>
+        </div>
+      `;
+    });
+    html += '</div>';
+  });
+  
+  content.innerHTML = html;
+}
+
+function toggleStar(id) {
+  const idea = allData.ideas.find(i => i.id === id);
+  if (!idea) return;
+  idea.status = idea.status === 'starred' ? 'pending' : 'starred';
+  applyFilters();
+  document.getElementById('stat-starred').textContent = allData.ideas.filter(i => i.status === 'starred').length;
+  saveStars();
+}
+
+function toggleDetails(id) {
+  const el = document.getElementById('details-' + id);
+  if (el) el.classList.toggle('open');
+}
+
+function truncate(s, max) {
+  if (!s) return '';
+  return s.length > max ? s.substring(0, max) + '...' : s;
+}
+
+function formatDate(d) {
+  const parts = d.split('-');
+  const months = ['Jan','Fev','Mar','Avr','Mai','Juin','Juil','Aou','Sep','Oct','Nov','Dec'];
+  return `${parseInt(parts[2])} ${months[parseInt(parts[1])-1]} ${parts[0]}`;
+}
+
+function catColor(cat) {
+  const colors = {
+    'productivity': 'rgba(63,185,80,.15)', 'ai': 'rgba(188,140,255,.15)',
+    'fintech': 'rgba(210,153,34,.15)', 'health': 'rgba(86,212,221,.15)',
+    'transport': 'rgba(88,166,255,.15)', 'climate': 'rgba(63,185,80,.15)',
+    'social': 'rgba(248,81,73,.15)', 'edtech': 'rgba(210,153,34,.15)',
+    'devtools': 'rgba(188,140,255,.15)', 'iot': 'rgba(86,212,221,.15)',
+    'other': 'rgba(139,148,158,.15)'
+  };
+  return colors[cat] || colors['other'];
+}
+
+// Save starred ideas to localStorage
+function saveStars() {
+  const starred = allData.ideas.filter(i => i.status === 'starred').map(i => i.id);
+  try { localStorage.setItem('ideas-archive-stars', JSON.stringify(starred)); } catch(e) {}
+  updateBestToggle();
+}
+
+function updateBestToggle() {
+  const starred = allData.ideas.filter(i => i.status === 'starred').length;
+  document.getElementById('best-only').checked = document.getElementById('best-only').checked && starred > 0;
+}
+
+// Load stars from localStorage
+function loadStars() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('ideas-archive-stars') || '[]');
+    saved.forEach(id => {
+      const idea = allData.ideas.find(i => i.id === id);
+      if (idea) idea.status = 'starred';
+    });
+  } catch(e) {}
+}
+
+// Event listeners
+document.getElementById('month-filter').addEventListener('change', applyFilters);
+document.getElementById('category-filter').addEventListener('change', applyFilters);
+document.getElementById('region-filter').addEventListener('change', applyFilters);
+document.getElementById('status-filter').addEventListener('change', applyFilters);
+document.getElementById('source-filter').addEventListener('change', applyFilters);
+document.getElementById('search-input').addEventListener('input', applyFilters);
+document.getElementById('best-only').addEventListener('change', applyFilters);
+
+// Init
+loadAllMonths().then(() => {
+  loadStars();
+  applyFilters();
+});
+</script>
+</body>
+</html>
