@@ -3,10 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ideas Archive — Archive des idées applicatives</title>
-  <meta name="description" content="Archive des meilleures idées applicatives — filtrage, visualisation, coups de cœur" />
-  <meta name="theme-color" content="#0b0f1a" />
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💡</text></svg>" />
+  <title>The Idea Ledger — Archive des idées applicatives</title>
+  <meta name="description" content="L'archive des idées de #cron-idees-apps — classées, datées, filtrées. Un ledger éditorial d'idées applicatives." />
+  <meta name="theme-color" content="#1b1b1b" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f1f1f1" media="(prefers-color-scheme: light)" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9662;</text></svg>" />
+
+  <!-- Anti-flash: apply stored theme before React hydrates -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('ia-theme');
+        if (t === 'light' || t === 'dark') {
+          document.documentElement.setAttribute('data-theme', t);
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+  <!-- Typefaces: Fraunces (editorial display) · Inter (body) · JetBrains Mono (catalog data) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,340..600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
 </head>
 <body>
   <div id="root"></div>

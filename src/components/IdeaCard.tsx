@@ -1,186 +1,274 @@
-import { useState } from 'react'
-import type { Idea } from '../types'
-import { CATEGORIES, CAT_COLORS, CAT_ICONS } from '../types'
-
-const DIFF_LABELS: Record<number, string> = {
-  1: 'Très facile',
-  2: 'Facile',
-  3: 'Moyen',
-  4: 'Difficile',
-  5: 'Très difficile',
-}
+import { useRef, useCallback } from 'react'
+import type { Idea, Collection } from '../types'
+import { CATEGORIES, CAT_COLORS, CAT_ICONS, DIFFICULTY_LABELS } from '../types'
 
 interface IdeaCardProps {
   idea: Idea
   index: number
   toggleStar: (id: string) => void
   formatDate: (d: string) => string
+  onOpen: (idea: Idea) => void
+  collections: Collection[]
+  onAddToCollection: (ideaId: string, colId: string) => void
+  viewMode: 'grid' | 'list'
 }
 
-export function IdeaCard({ idea, index, toggleStar, formatDate }: IdeaCardProps) {
-  const [expanded, setExpanded] = useState(false)
+export function IdeaCard({
+  idea, index, toggleStar, formatDate, onOpen,
+  collections, onAddToCollection, viewMode,
+}: IdeaCardProps) {
   const starred = idea.status === 'starred'
   const catColor = CAT_COLORS[idea.category] || '#9ca3af'
-  const catIcon = CAT_ICONS[idea.category] || '💡'
-  const regionLabel = idea.region === 'madagascar' ? '🇲🇬 Mada' : '🌍 Global'
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  // Directional glow — track mouse position relative to card
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const card = cardRef.current
+    if (!card) return
+    const rect = card.getBoundingClientRect()
+    const x = ((e.clientX - rect.left) / rect.width)  * 100
+    const y = ((e.clientY - rect.top)  / rect.height) * 100
+    card.style.setProperty('--mx', `${x}%`)
+    card.style.setProperty('--my', `${y}%`)
+  }, [])
+
+  if (viewMode === 'list') {
+    return (
+      <button
+        className="idea-row rise"
+        style={{ animationDelay: `${(index % 8) * 30}ms` }}
+        onClick={() => onOpen(idea)}
+        aria-label={`Ouvrir les détails de "${idea.title}"`}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{
+              fontFamily: 'var(--font-mono)', fontSize: 10,
+              color: 'var(--ochre)', letterSpacing: '0.06em',
+            }}>
+              {idea.id.substring(0, 8)}
+            </span>
+            <span style={{
+              fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 600,
+              color: 'var(--color-text-primary)',
+            }}>{idea.title}</span>
+            {starred && <span style={{ color: 'var(--ochre)', fontSize: 12 }}>◆</span>}
+          </div>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{
+              fontFamily: 'var(--font-mono)', fontSize: 10.5,
+              color: 'var(--color-text-tertiary)',
+            }}>
+              {formatDate(idea.date)}
+            </span>
+            <CategoryBadge idea={idea} catColor={catColor} />
+          </div>
+        </div>
+        <span style={{
+          fontFamily: 'var(--font-mono)', fontSize: 11,
+          color: 'var(--color-text-tertiary)', flexShrink: 0,
+        }}>→</span>
+      </button>
+    )
+  }
 
   return (
     <div
-      style={{
-        background: 'var(--color-background-surface)',
-        border: `1px solid ${starred ? '#f59e0b' : 'var(--color-border)'}`,
-        borderRadius: 'var(--radius-container)',
-        padding: 18,
-        position: 'relative',
-        cursor: 'default',
-        animation: `fadeIn 0.3s ease both`,
-        animationDelay: `${(index % 5) * 40}ms`,
-        transition: 'transform 0.2s, box-shadow 0.2s, border-color 0.2s',
-      }}
-      className="idea-card"
+      ref={cardRef}
+      className={`idea-card rise${starred ? ' is-starred' : ''}`}
+      style={{ animationDelay: `${(index % 8) * 35}ms` }}
+      onMouseMove={handleMouseMove}
     >
-      {/* Star button */}
+      {/* Clickable overlay for "open detail" */}
       <button
-        onClick={() => toggleStar(idea.id)}
-        title={starred ? 'Retirer des coups de cœur' : 'Ajouter aux coups de cœur'}
-        style={{
-          position: 'absolute', top: 12, right: 12,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          width: 30, height: 30,
-          borderRadius: 6,
-          background: starred ? 'rgba(245,158,11,.12)' : 'transparent',
-          border: `1px solid ${starred ? '#f59e0b' : 'var(--color-border)'}`,
-          color: starred ? '#f59e0b' : 'var(--color-text-tertiary)',
-          fontSize: 14, cursor: 'pointer',
-        }}
-      >
-        {starred ? '★' : '☆'}
-      </button>
+        className="idea-card__open"
+        onClick={() => onOpen(idea)}
+        aria-label={`Ouvrir les détails de "${idea.title}"`}
+      />
 
-      {/* Badges */}
-      <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 8 }}>
-        <span style={{
-          padding: '2px 8px', borderRadius: 5, fontSize: 10.5, fontWeight: 600,
-          background: `${catColor}18`, color: catColor,
+      {/* Header row */}
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+        padding: '14px 14px 0',
+        position: 'relative', zIndex: 1,
+      }}>
+        {/* Catalog number */}
+        <span className="catalog-no">{idea.id.substring(0, 8)}</span>
+
+        {/* Action buttons */}
+        <div style={{ display: 'flex', gap: 4 }}>
+          {/* Add to collection */}
+          {collections.length > 0 && (
+            <div style={{ position: 'relative' }}>
+              <select
+                onClick={e => e.stopPropagation()}
+                onChange={e => {
+                  if (e.target.value) onAddToCollection(idea.id, e.target.value)
+                  e.target.value = ''
+                }}
+                defaultValue=""
+                aria-label={`Ajouter "${idea.title}" à une collection`}
+                style={{
+                  appearance: 'none', WebkitAppearance: 'none',
+                  width: 28, height: 28,
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 6,
+                  background: 'transparent',
+                  color: 'transparent',
+                  cursor: 'pointer',
+                  position: 'absolute', inset: 0, opacity: 0,
+                }}
+              >
+                <option value="">+ Collection</option>
+                {collections.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+              <div style={{
+                pointerEvents: 'none',
+                width: 28, height: 28,
+                border: '1px solid var(--color-border)',
+                borderRadius: 6,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: 'var(--font-mono)', fontSize: 13,
+                color: 'var(--color-text-tertiary)',
+              }}>◈</div>
+            </div>
+          )}
+
+          {/* Star */}
+          <button
+            onClick={e => { e.stopPropagation(); toggleStar(idea.id) }}
+            aria-label={starred ? `Retirer "${idea.title}" des coups de cœur` : `Ajouter "${idea.title}" aux coups de cœur`}
+            aria-pressed={starred}
+            style={{
+              width: 28, height: 28,
+              borderRadius: 6,
+              border: `1px solid ${starred ? 'var(--ochre-line)' : 'var(--color-border)'}`,
+              background: starred ? 'var(--ochre-tint)' : 'transparent',
+              color: starred ? 'var(--ochre)' : 'var(--color-text-tertiary)',
+              fontSize: 13, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.18s ease',
+            }}
+          >
+            {starred ? '◆' : '◇'}
+          </button>
+        </div>
+      </div>
+
+      {/* Body */}
+      <div style={{ padding: '10px 14px 14px', position: 'relative', zIndex: 1 }}>
+        {/* Badges */}
+        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 9 }}>
+          <CategoryBadge idea={idea} catColor={catColor} />
+          <RegionBadge idea={idea} />
+          {idea.source === 'self-improving' && (
+            <span style={badgeStyle('rgba(167,139,250,.12)', '#a78bfa', 'rgba(167,139,250,.22)')}>
+              Self-Improving
+            </span>
+          )}
+        </div>
+
+        {/* Title */}
+        <div style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: 17,
+          fontWeight: 400,
+          lineHeight: 1.25,
+          letterSpacing: '-0.01em',
+          color: 'var(--color-text-primary)',
+          marginBottom: 6,
         }}>
-          {catIcon} {CATEGORIES[idea.category]}
-        </span>
-        <span style={{
-          padding: '2px 8px', borderRadius: 5, fontSize: 10.5, fontWeight: 600,
-          background: idea.region === 'madagascar' ? 'rgba(52,211,153,.12)' : 'rgba(96,165,250,.12)',
-          color: idea.region === 'madagascar' ? '#34d399' : '#60a5fa',
-          border: idea.region === 'madagascar' ? '1px solid rgba(52,211,153,.2)' : '1px solid rgba(96,165,250,.2)',
+          {idea.title}
+        </div>
+
+        {/* Meta line */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          fontFamily: 'var(--font-mono)', fontSize: 11,
+          color: 'var(--color-text-tertiary)', marginBottom: 8,
         }}>
-          {regionLabel}
-        </span>
-        {idea.source === 'self-improving' && (
+          <span>{formatDate(idea.date)}</span>
+          {idea.theme && <><span style={{ opacity: 0.4 }}>·</span><span>{idea.theme}</span></>}
+          {idea.difficulty != null && (
+            <>
+              <span style={{ opacity: 0.4 }}>·</span>
+              <DiffMeter difficulty={idea.difficulty} />
+              <span style={{ fontSize: 10 }}>{DIFFICULTY_LABELS[idea.difficulty]}</span>
+            </>
+          )}
+        </div>
+
+        {/* Description */}
+        <p style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: 13, lineHeight: 1.55,
+          color: 'var(--color-text-secondary)',
+          margin: 0, marginBottom: 10,
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+        }}>
+          {idea.description || idea.problem || ''}
+        </p>
+
+        {/* Stack tag */}
+        {idea.stack && (
           <span style={{
-            padding: '2px 8px', borderRadius: 5, fontSize: 10.5, fontWeight: 600,
-            background: 'rgba(167,139,250,.12)', color: '#a78bfa',
-            border: '1px solid rgba(167,139,250,.2)',
+            fontFamily: 'var(--font-mono)', fontSize: 10.5,
+            color: 'var(--color-text-tertiary)',
+            background: 'var(--color-background-body)',
+            border: '1px solid var(--color-border)',
+            padding: '2px 7px',
+            borderRadius: 'var(--radius-inner)',
+            display: 'inline-block',
+            maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
           }}>
-            Self-Improving
+            {idea.stack.slice(0, 55)}{idea.stack.length > 55 ? '…' : ''}
           </span>
         )}
       </div>
-
-      {/* Title */}
-      <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 3, lineHeight: 1.3, color: 'var(--color-text-primary)' }}>
-        {idea.title}
-      </div>
-
-      {/* Date + difficulty */}
-      <div style={{ fontSize: 11.5, color: 'var(--color-text-tertiary)', marginBottom: 6 }}>
-        {formatDate(idea.date)}
-        {idea.theme && <> · {idea.theme}</>}
-        {idea.difficulty && (
-          <>
-            {' · '}
-            <span className="diff-dots">
-              {Array.from({ length: 5 }, (_, j) => (
-                <span key={j} className={j < idea.difficulty! ? 'filled' : 'empty'} />
-              ))}
-            </span>
-            {' '}{DIFF_LABELS[idea.difficulty] || ''}
-          </>
-        )}
-      </div>
-
-      {/* Description */}
-      <p style={{
-        fontSize: 13, lineHeight: 1.5, color: 'var(--color-text-secondary)',
-        margin: '0 0 10px',
-        display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
-        overflow: 'hidden',
-      }}>
-        {idea.description || idea.problem || ''}
-      </p>
-
-      {/* Meta tags */}
-      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
-        {idea.market && (
-          <span style={metaStyle}>{idea.market.slice(0, 40)}{idea.market.length > 40 ? '...' : ''}</span>
-        )}
-        {idea.revenue && (
-          <span style={metaStyle}>{idea.revenue.slice(0, 35)}{idea.revenue.length > 35 ? '...' : ''}</span>
-        )}
-        {idea.stack && (
-          <span style={metaStyle}>{idea.stack.slice(0, 30)}{idea.stack.length > 30 ? '...' : ''}</span>
-        )}
-      </div>
-
-      {/* Expand button */}
-      <button
-        onClick={() => setExpanded(!expanded)}
-        style={{
-          background: 'none', border: 'none',
-          color: 'var(--color-accent)', fontSize: 11.5,
-          cursor: 'pointer', padding: 0, fontWeight: 500,
-        }}
-      >
-        {expanded ? 'Voir moins ↑' : 'Voir plus ↓'}
-      </button>
-
-      {/* Expanded details */}
-      {expanded && (
-        <div style={{
-          marginTop: 10, paddingTop: 12,
-          borderTop: '1px solid var(--color-border)',
-          animation: 'fadeIn 0.2s ease',
-        }}>
-          {idea.description && <DetailBlock label="Description" value={idea.description} />}
-          {idea.problem && <DetailBlock label="Problème" value={idea.problem} />}
-          {idea.market && <DetailBlock label="Marché" value={idea.market} />}
-          {idea.revenue && <DetailBlock label="Revenus" value={idea.revenue} />}
-          {idea.stack && <DetailBlock label="Stack" value={idea.stack} />}
-          {idea.why_now && <DetailBlock label="Pourquoi maintenant" value={idea.why_now} />}
-          {idea.mvp_plan && <DetailBlock label="MVP" value={idea.mvp_plan} />}
-        </div>
-      )}
     </div>
   )
 }
 
-function DetailBlock({ label, value }: { label: string; value: string }) {
+function CategoryBadge({ idea, catColor }: { idea: Idea; catColor: string }) {
   return (
-    <div style={{ marginBottom: 8 }}>
-      <div style={{
-        fontSize: 10.5, fontWeight: 700, textTransform: 'uppercase',
-        letterSpacing: '0.5px', color: 'var(--color-text-tertiary)',
-        marginBottom: 2,
-      }}>
-        {label}
-      </div>
-      <div style={{ fontSize: 13, lineHeight: 1.5, color: 'var(--color-text-secondary)' }}>
-        {value}
-      </div>
-    </div>
+    <span style={badgeStyle(`${catColor}1a`, catColor, `${catColor}36`)}>
+      {CAT_ICONS[idea.category]} {CATEGORIES[idea.category]}
+    </span>
   )
 }
 
-const metaStyle: React.CSSProperties = {
-  fontSize: 11, padding: '2px 7px', borderRadius: 4,
-  background: 'var(--color-background-body)',
-  color: 'var(--color-text-tertiary)',
-  border: '1px solid var(--color-border)',
+function RegionBadge({ idea }: { idea: Idea }) {
+  const isMada = idea.region === 'madagascar'
+  return (
+    <span style={badgeStyle(
+      isMada ? 'rgba(52,211,153,.10)' : 'rgba(96,165,250,.10)',
+      isMada ? '#34d399' : '#60a5fa',
+      isMada ? 'rgba(52,211,153,.22)' : 'rgba(96,165,250,.22)',
+    )}>
+      {isMada ? '🇲🇬 Mada' : '🌍 Global'}
+    </span>
+  )
+}
+
+function badgeStyle(bg: string, color: string, border: string): React.CSSProperties {
+  return {
+    padding: '2px 8px', borderRadius: 5, fontSize: 10.5, fontWeight: 600,
+    background: bg, color, border: `1px solid ${border}`,
+    whiteSpace: 'nowrap',
+  }
+}
+
+function DiffMeter({ difficulty }: { difficulty: number }) {
+  return (
+    <span className="diff-meter" aria-label={`Difficulté ${difficulty} sur 5`}>
+      {Array.from({ length: 5 }, (_, i) => (
+        <i key={i} className={i < difficulty ? 'on' : ''} />
+      ))}
+    </span>
+  )
 }

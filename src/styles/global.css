@@ -1,98 +1,370 @@
-/* Astryx base styles - order matters for layer cascade */
+/* ============================================================================
+   The Idea Ledger — global styles
+   Base: Astryx Neutral (warm-gray monochrome). Signature: ochre + mono scaffolding.
+   ========================================================================== */
 @import '@astryxdesign/core/reset.css';
 @import '@astryxdesign/core/astryx.css';
 @import '@astryxdesign/theme-neutral/theme.css';
 
-/* Custom overrides */
+/* ----------------------------------------------------------------------------
+   Design tokens layered on top of Astryx. light-dark() resolves via the
+   color-scheme that Astryx sets from <html data-theme>.
+   -------------------------------------------------------------------------- */
 :root {
-  --app-max-width: 1320px;
+  --app-max-width: 1240px;
+
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Ochre — the single signature accent. Thin, never a fill. */
+  --ochre: light-dark(#b9721c, #f0ae54);
+  --ochre-strong: light-dark(#9c5f14, #f6c078);
+  --ochre-tint: light-dark(rgba(185, 114, 28, 0.10), rgba(240, 174, 84, 0.14));
+  --ochre-line: light-dark(rgba(185, 114, 28, 0.28), rgba(240, 174, 84, 0.30));
+
+  /* Graph-paper rule for the hero field */
+  --grid-line: light-dark(rgba(23, 23, 23, 0.045), rgba(255, 255, 255, 0.045));
+
+  --shadow-card: light-dark(
+    0 1px 2px rgba(23, 23, 23, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.4)
+  );
+  --shadow-lift: light-dark(
+    0 14px 40px -12px rgba(23, 23, 23, 0.20),
+    0 18px 50px -14px rgba(0, 0, 0, 0.70)
+  );
 }
+
+* { box-sizing: border-box; }
 
 body {
-  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-body);
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-#root {
-  min-height: 100vh;
+#root { min-height: 100vh; }
+
+/* Editorial display face for headings */
+h1, h2, h3, .display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 7px; }
+/* Mono utility — catalog numbers, labels, data */
+.mono {
+  font-family: var(--font-mono);
+  font-feature-settings: 'tnum' 1;
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+/* ----------------------------------------------------------------------------
+   Scrollbar
+   -------------------------------------------------------------------------- */
+::-webkit-scrollbar { width: 9px; height: 9px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--color-border-emphasized); }
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-emphasized);
+  border-radius: 8px;
+  border: 2px solid var(--color-background-body);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--ochre); }
 
-/* Hero gradient */
-.hero-glow {
+/* ----------------------------------------------------------------------------
+   Focus — visible ring for keyboard users only
+   -------------------------------------------------------------------------- */
+:focus-visible {
+  outline: 2px solid var(--ochre);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ----------------------------------------------------------------------------
+   Hero — graph-paper field + masthead
+   -------------------------------------------------------------------------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--color-border);
+}
+.hero-grid {
   position: absolute;
-  top: -60px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 500px;
-  height: 200px;
-  background: radial-gradient(ellipse, rgba(96, 165, 250, 0.08) 0%, transparent 70%);
+  inset: -2px;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 26px 26px;
+  mask-image: radial-gradient(ellipse 90% 80% at 50% 30%, #000 40%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 30%, #000 40%, transparent 100%);
+  animation: grid-drift 32s linear infinite;
   pointer-events: none;
 }
+@keyframes grid-drift {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 26px 26px, 26px 26px; }
+}
+.hero-halo {
+  position: absolute;
+  top: -140px; left: 50%;
+  width: 620px; height: 380px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse, var(--ochre-tint) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-title {
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  font-size: clamp(2.6rem, 8vw, 5rem);
+  margin: 0;
+  color: var(--color-text-primary);
+}
+.hero-title .ink-mark {
+  font-style: italic;
+  color: var(--ochre);
+}
 
-/* Idea card transitions */
+/* Live counter */
+.counter-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* ----------------------------------------------------------------------------
+   Idea card — the specimen. Hover: subtle scale + directional glow + border.
+   -------------------------------------------------------------------------- */
 .idea-card {
-  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  position: relative;
+  background: var(--color-background-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  box-shadow: var(--shadow-card);
+  transition:
+    transform 0.28s cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 0.28s ease,
+    border-color 0.28s ease;
+  will-change: transform;
+}
+/* Directional glow follows the pointer via --mx/--my set in JS */
+.idea-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(
+    240px circle at var(--mx, 50%) var(--my, 0%),
+    var(--ochre-line),
+    transparent 60%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.28s ease;
+  pointer-events: none;
 }
 .idea-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.006);
+  box-shadow: var(--shadow-lift);
+  border-color: var(--color-border-emphasized);
+}
+.idea-card:hover::before { opacity: 1; }
+.idea-card.is-starred { border-color: var(--ochre-line); }
+
+.idea-card__open {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: inherit;
 }
 
-/* Difficulty dots */
-.diff-dots {
-  display: inline-flex;
-  gap: 2px;
+/* Catalog number rail */
+.catalog-no {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
 }
-.diff-dots span {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  display: inline-block;
-}
-.diff-dots .filled { background: var(--color-accent, #60a5fa); }
-.diff-dots .empty { background: var(--color-border, #2a3040); }
 
-/* Agent chat container */
-.agent-chat-container {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 1000;
-  max-width: 380px;
+/* Difficulty meter (mono blocks) */
+.diff-meter { display: inline-flex; gap: 2px; vertical-align: middle; }
+.diff-meter i {
+  width: 8px; height: 4px; border-radius: 1px; display: inline-block;
+  background: var(--color-border-emphasized);
+}
+.diff-meter i.on { background: var(--ochre); }
+
+/* List-mode row */
+.idea-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 18px;
+  background: var(--color-background-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-element);
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+  text-align: left;
   width: 100%;
 }
+.idea-row:hover {
+  border-color: var(--ochre-line);
+  transform: translateX(2px);
+}
 
-.agent-chat-panel {
-  margin-bottom: 8px;
-  border-radius: var(--radius-container);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+/* ----------------------------------------------------------------------------
+   Toolbar / filters
+   -------------------------------------------------------------------------- */
+.ledger-select {
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 8px 30px 8px 12px;
+  border-radius: var(--radius-element);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-background-surface);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  outline: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  transition: border-color 0.18s ease;
+}
+.ledger-select:hover { border-color: var(--color-border-emphasized); }
+.ledger-select:focus-visible { border-color: var(--ochre); }
+
+.ledger-search {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 8px 12px 8px 32px;
+  border-radius: var(--radius-element);
+  border: 1px solid var(--color-border);
+  background: var(--color-background-surface);
+  color: var(--color-text-primary);
+  outline: none;
+  transition: border-color 0.18s ease;
+}
+.ledger-search:focus-visible { border-color: var(--ochre); }
+
+/* ----------------------------------------------------------------------------
+   Detail overlay — editorial dossier
+   -------------------------------------------------------------------------- */
+.detail-scrim {
+  position: fixed; inset: 0; z-index: 1200;
+  background: var(--color-overlay);
+  backdrop-filter: blur(3px);
+  display: flex; justify-content: center;
+  padding: 24px;
+  overflow-y: auto;
+  animation: scrim-in 0.2s ease both;
+}
+@keyframes scrim-in { from { opacity: 0; } to { opacity: 1; } }
+.detail-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 760px;
+  margin: auto;
+  background: var(--color-background-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-page);
+  box-shadow: var(--shadow-lift);
+  animation: sheet-in 0.32s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   overflow: hidden;
-  max-height: 480px;
-  display: flex;
-  flex-direction: column;
+}
+@keyframes sheet-in {
+  from { opacity: 0; transform: translateY(18px) scale(0.985); }
+  to   { opacity: 1; transform: none; }
+}
+.detail-field { border-top: 1px solid var(--color-border); padding: 18px 0; }
+.detail-field:first-of-type { border-top: none; }
+
+/* ----------------------------------------------------------------------------
+   Agent chat
+   -------------------------------------------------------------------------- */
+.agent-chat-container {
+  position: fixed; bottom: 22px; right: 22px; z-index: 1000;
+  width: 100%; max-width: 384px;
+}
+.agent-chat-panel {
+  margin-bottom: 10px;
+  background: var(--color-background-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  box-shadow: var(--shadow-lift);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  max-height: 500px;
+  animation: sheet-in 0.26s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.agent-chat-toggle { margin-left: auto; width: fit-content; }
+
+.chat-bubble {
+  max-width: 86%;
+  padding: 9px 12px;
+  font-size: 12.75px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.chat-bubble strong { font-weight: 600; }
+
+/* ----------------------------------------------------------------------------
+   Motion / entrance
+   -------------------------------------------------------------------------- */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+.rise { animation: rise 0.42s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+@keyframes typing-dot {
+  0%, 60%, 100% { opacity: 0.25; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-2px); }
 }
 
-.agent-chat-toggle {
-  margin-left: auto;
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
 }
 
-/* Expand animation */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* Responsive */
+/* ----------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
 @media (max-width: 768px) {
-  .agent-chat-container {
-    bottom: 12px;
-    right: 12px;
-    left: 12px;
-    max-width: none;
+  .agent-chat-container { bottom: 14px; right: 14px; left: 14px; max-width: none; }
+  .detail-scrim { padding: 0; }
+  .detail-sheet { border-radius: 0; min-height: 100vh; }
+}
+
+/* ----------------------------------------------------------------------------
+   Reduced motion — respect the setting
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
+  .hero-grid { animation: none; }
+  .idea-card:hover { transform: none; }
 }

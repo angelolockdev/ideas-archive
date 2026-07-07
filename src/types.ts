@@ -28,6 +28,34 @@ export interface MonthlyData {
   ideas: Idea[]
 }
 
+/** A user-curated named list of ideas, persisted to localStorage. */
+export interface Collection {
+  id: string
+  name: string
+  ideaIds: string[]
+  createdAt: number
+}
+
+export type ViewMode = 'grid' | 'list'
+
+export const SOURCE_LABELS: Record<Idea['source'], string> = {
+  'idees-matin': 'Idées du matin',
+  'self-improving': 'Self-Improving',
+}
+
+export const REGION_LABELS: Record<Idea['region'], string> = {
+  global: 'Global',
+  madagascar: 'Madagascar',
+}
+
+export const DIFFICULTY_LABELS: Record<number, string> = {
+  1: 'Très facile',
+  2: 'Facile',
+  3: 'Moyen',
+  4: 'Difficile',
+  5: 'Très difficile',
+}
+
 export const CATEGORIES: Record<Category, string> = {
   productivity: 'Productivité',
   ai: 'IA / ML',

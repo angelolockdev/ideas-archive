@@ -7,38 +7,64 @@ interface StatsBarProps {
   }
 }
 
-export function StatsBar({ stats }: StatsBarProps) {
-  const items = [
-    { value: stats.total, label: 'Idées', color: 'var(--color-accent)' },
-    { value: stats.starred, label: 'Coups de cœur', color: '#f59e0b' },
-    { value: stats.mada, label: 'Madagascar 🇲🇬', color: '#a78bfa' },
-    { value: stats.global, label: 'Global 🌍', color: '#34d399' },
-  ]
+const ITEMS = [
+  { key: 'total',   label: 'Spécimens',     icon: '▾' },
+  { key: 'starred', label: 'Coups de cœur', icon: '◆' },
+  { key: 'mada',    label: 'Madagascar',     icon: '◎' },
+  { key: 'global',  label: 'Global',         icon: '◉' },
+] as const
 
+export function StatsBar({ stats }: StatsBarProps) {
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))',
-      gap: 10,
-      marginBottom: 24,
-    }}>
-      {items.map(item => (
-        <div key={item.label} style={{
-          background: 'var(--color-background-surface)',
-          border: '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-element)',
-          padding: '12px 16px',
-          textAlign: 'center',
-          transition: 'border-color 0.2s',
-        }}>
-          <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.5px', lineHeight: 1.2, color: item.color }}>
-            {item.value}
+    <div
+      role="region"
+      aria-label="Statistiques"
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+        gap: 10,
+        margin: '28px 0',
+      }}
+    >
+      {ITEMS.map(item => {
+        const val = stats[item.key]
+        return (
+          <div
+            key={item.key}
+            style={{
+              background: 'var(--color-background-surface)',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-container)',
+              padding: '14px 18px',
+            }}
+          >
+            <div style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: 28,
+              fontWeight: 600,
+              lineHeight: 1,
+              letterSpacing: '-0.03em',
+              color: 'var(--color-text-primary)',
+              fontVariantNumeric: 'tabular-nums',
+            }}>
+              {val.toLocaleString('fr-FR')}
+            </div>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 5,
+              marginTop: 6,
+            }}>
+              <span style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: 11,
+                color: 'var(--ochre)',
+              }}>{item.icon}</span>
+              <span className="eyebrow">
+                {item.label}
+              </span>
+            </div>
           </div>
-          <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: 2 }}>
-            {item.label}
-          </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }

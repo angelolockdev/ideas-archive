@@ -1,30 +1,47 @@
 export function Footer() {
   return (
     <footer style={{
-      textAlign: 'center', padding: '28px 0',
       borderTop: '1px solid var(--color-border)',
-      marginTop: 40,
+      marginTop: 60,
+      padding: '28px 20px',
     }}>
-      <p style={{ fontSize: 12, color: 'var(--color-text-tertiary)', margin: 0 }}>
-        Ideas Archive —{' '}
-        <a
-          href="https://github.com/angelolockdev/ideas-archive"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: 'var(--color-accent)', textDecoration: 'none' }}
-        >
-          angelolockdev/ideas-archive
-        </a>
-        {' '}· Propulsé par{' '}
-        <a
-          href="https://github.com/facebook/astryx"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: 'var(--color-accent)', textDecoration: 'none' }}
-        >
-          Astryx
-        </a>
-      </p>
+      <div style={{
+        maxWidth: 'var(--app-max-width)',
+        margin: '0 auto',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: 12,
+      }}>
+        <span className="eyebrow">
+          The Idea Ledger — archivé depuis{' '}
+          <span style={{ color: 'var(--ochre)' }}>#cron-idees-apps</span>
+        </span>
+
+        <div style={{ display: 'flex', gap: 16 }}>
+          <a
+            href="https://github.com/angelolockdev/ideas-archive"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="eyebrow"
+            style={{ color: 'var(--color-text-secondary)', textDecoration: 'none' }}
+            aria-label="Code source sur GitHub"
+          >
+            GitHub ↗
+          </a>
+          <a
+            href="https://github.com/facebook/astryx"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="eyebrow"
+            style={{ color: 'var(--color-text-secondary)', textDecoration: 'none' }}
+            aria-label="Design system Astryx"
+          >
+            Astryx ↗
+          </a>
+        </div>
+      </div>
     </footer>
   )
 }
