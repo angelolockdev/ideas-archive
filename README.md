@@ -1,17 +1,30 @@
 # Ideas Archive
 
-Archive des meilleures idees applicatives du channel `#cron-idees-apps`.
+Archive des meilleures idées applicatives du channel `#cron-idees-apps`.
 
-## Structure
+**Design system : [Astryx](https://github.com/facebook/astryx) par Meta** — 150+ composants React accessibles, thème Neutral, mode sombre/clair natif.
+
+## 🚀 Stack
+
+| Technologie | Usage |
+|-------------|-------|
+| **Astryx** (Meta) | Design system — composants, thème, tokens CSS |
+| **React 19** | UI framework |
+| **Vite 5** | Build tool (sortie statique) |
+| **TypeScript** | Typage strict |
+| **GitHub Pages** | Hébergement statique |
+
+## 📂 Structure
 
 ```
 data/                ← Fichiers JSON mensuels (2026-07.json, etc.)
-index.html           ← Page web de visualisation et filtrage
-scripts/
-  archive-ideas.py   ← Script de parsing et mise a jour
+public/data/         ← Copie pour le build Vite
+src/                 ← Code source React/TypeScript
+  components/        ← Composants UI (Astryx + custom)
+scripts/             ← Scripts Python d'archivage
 ```
 
-## Format des donnees
+## 📊 Format des données
 
 Chaque fichier mensuel suit cette structure :
 
@@ -39,27 +52,43 @@ Chaque fichier mensuel suit cette structure :
 }
 ```
 
-## Utilisation
+## 🤖 Assistant IA
 
-### Page web
-Ouvrez `index.html` dans un navigateur pour visualiser, filtrer et marquer les idees.
+Un agent intelligent est intégré à la page (widget en bas à droite) :
 
-### Coup de coeur
-Cliquez sur l'etoile en haut a droite d'une carte pour la marquer comme coup de coeur.
-Les coups de coeur sont persistants dans le navigateur (localStorage).
+- **Recherche sémantique** dans toutes les idées
+- **Statistiques** en temps réel
+- **Exploration** par catégorie, région
+- **Suggestions** contextuelles
+- Interface de chat native Astryx
 
-### Mise a jour automatique
-Un cron job Hermes s'execute chaque lundi a 10h00 pour :
-1. Recuperer les messages de `#cron-idees-apps` de la semaine
-2. Analyser et structurer les nouvelles idees
-3. Mettre a jour le fichier JSON mensuel
-4. Pusher sur GitHub
+## 🔄 Automatisation
 
-## Sources
-
-Deux crons alimentent ce canal :
+Deux cron jobs Hermes alimentent l'archive :
 
 | Cron | Horaire | Description |
 |------|---------|-------------|
-| **Idees d'application du matin** | 9h00 | Idees generales (marche global) |
-| **Idees Matinales Self-Improving** | 8h00 | Idees ciblees Madagascar |
+| **Ideas Archive — Weekly Update** | Lundi 10h00 | Parse les messages Slack, met à jour les JSON, push GitHub |
+| **Idées Hebdo — Self-Improving** | Lundi 8h00 | Génère des idées ciblées Madagascar |
+
+## 🛠️ Développement
+
+```bash
+# Installation
+npm install
+
+# Dev server
+npm run dev
+
+# Build production
+npm run build
+
+# Preview build
+npm run preview
+```
+
+## 📦 Déploiement
+
+Push sur `main` → GitHub Actions build → GitHub Pages.
+
+URL : `https://angelolockdev.github.io/ideas-archive/`
