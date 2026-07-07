@@ -74,7 +74,7 @@ export default function App() {
     setIdeas(prev => {
       const next = prev.map(i => {
         if (i.id !== id) return i
-        return { ...i, status: i.status === 'starred' ? 'pending' : 'starred' }
+        return { ...i, status: (i.status === 'starred' ? 'pending' : 'starred') as 'pending' | 'starred' }
       })
       const starred = next.filter(i => i.status === 'starred').map(i => i.id)
       localStorage.setItem('ia-stars', JSON.stringify(starred))
