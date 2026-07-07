@@ -1,4 +1,5 @@
 import { useRef, useCallback } from 'react'
+import { Star, FolderPlus, ChevronRight } from 'lucide-react'
 import type { Idea, Collection } from '../types'
 import { CATEGORIES, CAT_COLORS, CAT_ICONS, DIFFICULTY_LABELS } from '../types'
 
@@ -52,7 +53,7 @@ export function IdeaCard({
               fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 600,
               color: 'var(--color-text-primary)',
             }}>{idea.title}</span>
-            {starred && <span style={{ color: 'var(--ochre)', fontSize: 12 }}>◆</span>}
+            {starred && <Star size={11} fill="currentColor" style={{ color: 'var(--ochre)', flexShrink: 0 }} />}
           </div>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
             <span style={{
@@ -64,10 +65,7 @@ export function IdeaCard({
             <CategoryBadge idea={idea} catColor={catColor} />
           </div>
         </div>
-        <span style={{
-          fontFamily: 'var(--font-mono)', fontSize: 11,
-          color: 'var(--color-text-tertiary)', flexShrink: 0,
-        }}>→</span>
+        <ChevronRight size={16} style={{ color: 'var(--color-text-tertiary)', flexShrink: 0 }} />
       </button>
     )
   }
@@ -90,13 +88,12 @@ export function IdeaCard({
       <div style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
         padding: '14px 14px 0',
-        position: 'relative', zIndex: 1,
       }}>
         {/* Catalog number */}
         <span className="catalog-no">{idea.id.substring(0, 8)}</span>
 
-        {/* Action buttons */}
-        <div style={{ display: 'flex', gap: 4 }}>
+        {/* Action buttons — must be above the .idea-card__open overlay (z-index: auto) */}
+        <div style={{ display: 'flex', gap: 4, position: 'relative', zIndex: 1 }}>
           {/* Add to collection */}
           {collections.length > 0 && (
             <div style={{ position: 'relative' }}>
@@ -130,9 +127,8 @@ export function IdeaCard({
                 border: '1px solid var(--color-border)',
                 borderRadius: 6,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontFamily: 'var(--font-mono)', fontSize: 13,
                 color: 'var(--color-text-tertiary)',
-              }}>◈</div>
+              }}><FolderPlus size={13} /></div>
             </div>
           )}
 
@@ -152,13 +148,13 @@ export function IdeaCard({
               transition: 'all 0.18s ease',
             }}
           >
-            {starred ? '◆' : '◇'}
+            <Star size={13} fill={starred ? 'currentColor' : 'none'} />
           </button>
         </div>
       </div>
 
       {/* Body */}
-      <div style={{ padding: '10px 14px 14px', position: 'relative', zIndex: 1 }}>
+      <div style={{ padding: '10px 14px 14px' }}>
         {/* Badges */}
         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 9 }}>
           <CategoryBadge idea={idea} catColor={catColor} />
