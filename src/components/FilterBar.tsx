@@ -1,5 +1,5 @@
 import { useMemo, useCallback, useRef, useState } from 'react'
-import type { Idea, Category, Collection, ViewMode } from '../types'
+import type { Idea, Category, Collection, ViewMode, PageTab } from '../types'
 import { CATEGORIES, MONTHS_FR } from '../types'
 import { encodeFilters } from '../lib/url'
 
@@ -27,6 +27,7 @@ interface FilterBarProps {
   availableMonths: string[]
   filteredCount: number
   isFiltered: boolean
+  activeTab: PageTab
 }
 
 function mlabel(ym: string) {
@@ -41,13 +42,14 @@ export function FilterBar({
   onSearchChange, onBestToggle, onViewModeChange, onResetFilters,
   onCollectionCreate, onCollectionSelect,
   availableMonths, filteredCount, isFiltered,
+  activeTab,
 }: FilterBarProps) {
   const [newColName, setNewColName] = useState('')
   const [colOpen, setColOpen] = useState(false)
   const [copied, setCopied] = useState(false)
   const searchRef = useRef<HTMLInputElement>(null)
 
-  // Per-category counts for badges
+  // Per-category counts
   const catCounts = useMemo(() => {
     const counts: Partial<Record<Category | 'all', number>> = { all: ideas.length }
     ideas.forEach(i => {
@@ -68,6 +70,7 @@ export function FilterBar({
     all: ideas.length,
     'idees-matin': ideas.filter(i => i.source === 'idees-matin').length,
     'self-improving': ideas.filter(i => i.source === 'self-improving').length,
+    'scan-niches': ideas.filter(i => i.source === 'scan-niches').length,
   }), [ideas])
 
   const handleShare = useCallback(() => {
@@ -76,9 +79,7 @@ export function FilterBar({
     navigator.clipboard.writeText(full).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
-    }).catch(() => {
-      // Fallback: select URL from address bar
-    })
+    }).catch(() => {})
   }, [monthFilter, catFilter, regionFilter, sourceFilter, searchQuery, bestOnly])
 
   const handleCreateCollection = useCallback(() => {
@@ -151,6 +152,7 @@ export function FilterBar({
           <option value="all">Sources ({sourceCounts.all})</option>
           <option value="idees-matin">Idées du matin ({sourceCounts['idees-matin']})</option>
           <option value="self-improving">Self-Improving ({sourceCounts['self-improving']})</option>
+          <option value="scan-niches">Niches Business ({sourceCounts['scan-niches']})</option>
         </select>
 
         {/* Search */}
@@ -170,9 +172,9 @@ export function FilterBar({
             type="search"
             value={searchQuery}
             onChange={e => onSearchChange(e.target.value)}
-            placeholder="Rechercher…"
+            placeholder={`Rechercher ${activeTab === 'niches' ? 'une niche…' : 'une idée…'}`}
             className="ledger-search"
-            aria-label="Rechercher dans les idées"
+            aria-label="Rechercher"
           />
         </div>
 
@@ -180,7 +182,7 @@ export function FilterBar({
         <button
           onClick={onBestToggle}
           aria-pressed={bestOnly}
-          aria-label={bestOnly ? 'Afficher toutes les idées' : 'Afficher seulement les coups de cœur'}
+          aria-label={bestOnly ? 'Afficher tout' : 'Afficher seulement les favoris'}
           style={{
             display: 'flex', alignItems: 'center', gap: 5,
             padding: '8px 12px',
@@ -196,11 +198,11 @@ export function FilterBar({
           }}
         >
           <span>{bestOnly ? '◆' : '◇'}</span>
-          Meilleures
+          Favoris
         </button>
       </div>
 
-      {/* Row 2: tools + result count */}
+      {/* Row 2: tools */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: 8,
         marginTop: 10, flexWrap: 'wrap',
@@ -237,7 +239,7 @@ export function FilterBar({
         {/* Share button */}
         <button
           onClick={handleShare}
-          aria-label="Copier le lien avec les filtres actuels"
+          aria-label="Copier le lien avec les filtres"
           style={{
             display: 'flex', alignItems: 'center', gap: 5,
             padding: '5px 11px',
@@ -292,7 +294,6 @@ export function FilterBar({
                 animation: 'rise 0.15s ease both',
               }}
             >
-              {/* None */}
               <button
                 role="option"
                 aria-selected={selectedCollection === null}
@@ -315,7 +316,6 @@ export function FilterBar({
                   </span>
                 </button>
               ))}
-              {/* Create new */}
               <div style={{ borderTop: '1px solid var(--color-border)', marginTop: 6, paddingTop: 8 }}>
                 <div style={{ display: 'flex', gap: 6 }}>
                   <input
@@ -348,14 +348,14 @@ export function FilterBar({
           )}
         </div>
 
-        {/* Spacer + result count + reset */}
+        {/* Result count + reset */}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
           <span
             className="eyebrow"
             aria-live="polite"
-            aria-label={`${filteredCount} idée${filteredCount > 1 ? 's' : ''} affichée${filteredCount > 1 ? 's' : ''}`}
+            aria-label={`${filteredCount} élément${filteredCount > 1 ? 's' : ''} affiché${filteredCount > 1 ? 's' : ''}`}
           >
-            {filteredCount}&nbsp;idée{filteredCount > 1 ? 's' : ''}
+            {filteredCount}&nbsp;{activeTab === 'niches' ? 'niche' : 'idée'}{filteredCount > 1 ? 's' : ''}
           </span>
 
           {isFiltered && (

@@ -9,18 +9,21 @@ export interface Idea {
   revenue: string
   stack: string
   difficulty: number | null
-  source: 'idees-matin' | 'self-improving'
+  source: 'idees-matin' | 'self-improving' | 'scan-niches'
   region: 'global' | 'madagascar'
   theme?: string
   keyword?: string
   why_now?: string
   mvp_plan?: string
+  action_plan?: string
+  competition?: string
+  market_size?: string
   date: string
   status: 'pending' | 'starred'
   category: Category
 }
 
-export type Category = 'productivity' | 'ai' | 'fintech' | 'health' | 'transport' | 'climate' | 'social' | 'edtech' | 'devtools' | 'iot' | 'other'
+export type Category = 'productivity' | 'ai' | 'fintech' | 'health' | 'transport' | 'climate' | 'social' | 'edtech' | 'devtools' | 'iot' | 'business-niche' | 'other'
 
 export interface MonthlyData {
   month: string
@@ -41,6 +44,7 @@ export type ViewMode = 'grid' | 'list'
 export const SOURCE_LABELS: Record<Idea['source'], string> = {
   'idees-matin': 'Idées du matin',
   'self-improving': 'Self-Improving',
+  'scan-niches': 'Niches Business',
 }
 
 export const REGION_LABELS: Record<Idea['region'], string> = {
@@ -67,6 +71,7 @@ export const CATEGORIES: Record<Category, string> = {
   edtech: 'Éducation',
   devtools: 'DevTools',
   iot: 'IoT',
+  'business-niche': 'Niches Business',
   other: 'Autre',
 }
 
@@ -81,6 +86,7 @@ export const CAT_COLORS: Record<Category, string> = {
   edtech: '#f59e0b',
   devtools: '#a78bfa',
   iot: '#2dd4bf',
+  'business-niche': '#f97316',
   other: '#9ca3af',
 }
 
@@ -95,7 +101,30 @@ export const CAT_ICONS: Record<Category, string> = {
   edtech: '🎓',
   devtools: '🔧',
   iot: '🏡',
+  'business-niche': '📊',
   other: '💡',
 }
 
 export const MONTHS_FR = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
+
+export const COMPETITION_LABELS: Record<string, string> = {
+  'Très faible': '🟢 Très faible',
+  'Faible': '🟢 Faible',
+  'Moyenne': '🟡 Moyenne',
+  'Élevée': '🔴 Élevée',
+  'Tres faible': '🟢 Très faible',
+  'Très élevée': '🔴 Très élevée',
+  'Tres elevee': '🔴 Très élevée',
+}
+
+export const COMPETITION_COLORS: Record<string, string> = {
+  'Très faible': '#34d399',
+  'Faible': '#4ade80',
+  'Moyenne': '#facc15',
+  'Élevée': '#ef4444',
+  'Tres faible': '#34d399',
+  'Très élevée': '#dc2626',
+  'Tres elevee': '#dc2626',
+}
+
+export type PageTab = 'ideas' | 'niches'

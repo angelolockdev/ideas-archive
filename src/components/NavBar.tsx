@@ -1,11 +1,16 @@
 import { Button } from '@astryxdesign/core/Button'
+import type { PageTab } from '../types'
 
 interface NavBarProps {
   themeMode: 'light' | 'dark' | 'system'
   onThemeToggle: () => void
+  activeTab: PageTab
+  onTabChange: (tab: PageTab) => void
+  nicheCount: number
+  ideaCount: number
 }
 
-export function NavBar({ themeMode, onThemeToggle }: NavBarProps) {
+export function NavBar({ themeMode, onThemeToggle, activeTab, onTabChange, nicheCount, ideaCount }: NavBarProps) {
   const isDark = themeMode === 'dark' || (themeMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
   return (
@@ -17,19 +22,18 @@ export function NavBar({ themeMode, onThemeToggle }: NavBarProps) {
         backdropFilter: 'blur(16px) saturate(1.6)',
         WebkitBackdropFilter: 'blur(16px) saturate(1.6)',
         borderBottom: '1px solid var(--color-border)',
-        height: 52,
       }}
     >
       <div style={{
         maxWidth: 'var(--app-max-width)', margin: '0 auto',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        height: '100%', padding: '0 20px',
+        height: 52, padding: '0 20px',
       }}>
         {/* Logotype */}
         <a
           href="#"
           aria-label="Ideas Archive — retour à l'accueil"
-          style={{ display: 'flex', alignItems: 'baseline', gap: 8, textDecoration: 'none' }}
+          style={{ display: 'flex', alignItems: 'baseline', gap: 8, textDecoration: 'none', flexShrink: 0 }}
         >
           <span style={{
             fontFamily: 'var(--font-mono)',
@@ -49,6 +53,28 @@ export function NavBar({ themeMode, onThemeToggle }: NavBarProps) {
             The Idea Ledger
           </span>
         </a>
+
+        {/* Tabs */}
+        <div role="tablist" aria-label="Vues" style={{ display: 'flex', gap: 2, marginLeft: 24 }}>
+          <button
+            role="tab"
+            aria-selected={activeTab === 'ideas'}
+            onClick={() => onTabChange('ideas')}
+            className={`nav-tab ${activeTab === 'ideas' ? 'active' : ''}`}
+          >
+            <span>💡 Idées</span>
+            <span className="nav-tab-count">{ideaCount}</span>
+          </button>
+          <button
+            role="tab"
+            aria-selected={activeTab === 'niches'}
+            onClick={() => onTabChange('niches')}
+            className={`nav-tab ${activeTab === 'niches' ? 'active' : ''}`}
+          >
+            <span>📊 Niches</span>
+            <span className="nav-tab-count">{nicheCount}</span>
+          </button>
+        </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           {/* Dark/light toggle */}

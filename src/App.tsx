@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Theme } from '@astryxdesign/core/theme'
 import { neutralTheme } from '@astryxdesign/theme-neutral/built'
-import type { Idea, MonthlyData, Category, Collection, ViewMode } from './types'
+import type { Idea, MonthlyData, Category, Collection, ViewMode, PageTab } from './types'
 import { MONTHS_FR } from './types'
 import { NavBar } from './components/NavBar'
 import { HeroSection } from './components/HeroSection'
@@ -9,6 +9,8 @@ import { StatsBar } from './components/StatsBar'
 import { FilterBar } from './components/FilterBar'
 import { IdeaGrid } from './components/IdeaGrid'
 import { IdeaDetail } from './components/IdeaDetail'
+import { NicheGrid } from './components/NicheGrid'
+import { NicheDetail } from './components/NicheDetail'
 import { AgentChat } from './components/AgentChat'
 import { Footer } from './components/Footer'
 import { decodeFilters, isFiltered as checkFiltered } from './lib/url'
@@ -22,7 +24,7 @@ function formatMonth(ym: string) {
 
 function formatDate(d: string) {
   const [y, m, day] = d.split('-')
-  return `${parseInt(day)} ${MONTHS_FR[parseInt(m) - 1].substring(0, 3)}. ${y}`
+  return `${parseInt(day)} ${MONTHS_FR[parseInt(m) - 1]} ${y}`
 }
 
 type ThemeMode = 'light' | 'dark' | 'system'
@@ -45,8 +47,9 @@ function loadCollections(): Collection[] {
 }
 
 export default function App() {
-  const [ideas, setIdeas]   = useState<Idea[]>([])
+  const [ideas, setIdeas]    = useState<Idea[]>([])
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState<PageTab>('ideas')
 
   // Read initial filters from URL (for share links)
   const initialFilters = useMemo(() => decodeFilters(), [])
@@ -67,6 +70,7 @@ export default function App() {
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null)
 
   const [detailIdea, setDetailIdea] = useState<Idea | null>(null)
+  const [detailNiche, setDetailNiche] = useState<Idea | null>(null)
 
   // Load data
   useEffect(() => {
@@ -95,7 +99,7 @@ export default function App() {
     load()
   }, [])
 
-  // Theme persistence + sync to <html>
+  // Theme persistence
   useEffect(() => {
     try { localStorage.setItem('ia-theme', themeMode) } catch { /* ignore */ }
   }, [themeMode])
@@ -152,9 +156,13 @@ export default function App() {
     )
   }, [])
 
+  // --- Ideas specific ---
+  const ideasOnly = useMemo(() => ideas.filter(i => i.source !== 'scan-niches'), [ideas])
+  const nichesOnly = useMemo(() => ideas.filter(i => i.source === 'scan-niches'), [ideas])
+
   // Filter ideas (memoized)
   const filtered = useMemo(() => {
-    let pool = ideas
+    let pool = activeTab === 'niches' ? nichesOnly : ideasOnly
 
     // Collection filter (pre-filter before other filters)
     if (selectedCollection) {
@@ -176,9 +184,9 @@ export default function App() {
       }
       return true
     })
-  }, [ideas, monthFilter, catFilter, regionFilter, sourceFilter, bestOnly, searchQuery, selectedCollection, collections])
+  }, [ideas, activeTab, ideasOnly, nichesOnly, monthFilter, catFilter, regionFilter, sourceFilter, bestOnly, searchQuery, selectedCollection, collections])
 
-  // Group by month (memoized)
+  // Group ideas by month (for ideas tab)
   const { grouped, groupKeys } = useMemo(() => {
     const grouped = filtered.reduce<Record<string, Idea[]>>((acc, idea) => {
       const m = idea.date.substring(0, 7)
@@ -190,13 +198,19 @@ export default function App() {
     return { grouped, groupKeys }
   }, [filtered])
 
-  // Stats (memoized)
+  // Stats
   const stats = useMemo(() => ({
-    total:   ideas.length,
-    starred: ideas.filter(i => i.status === 'starred').length,
-    mada:    ideas.filter(i => i.region === 'madagascar').length,
-    global:  ideas.filter(i => i.region === 'global').length,
-  }), [ideas])
+    total:   ideasOnly.length,
+    starred: ideasOnly.filter(i => i.status === 'starred').length,
+    mada:    ideasOnly.filter(i => i.region === 'madagascar').length,
+    global:  ideasOnly.filter(i => i.region === 'global').length,
+  }), [ideasOnly])
+
+  const nicheStats = useMemo(() => ({
+    total: nichesOnly.length,
+    starred: nichesOnly.filter(i => i.status === 'starred').length,
+    thisMonth: nichesOnly.filter(i => i.date.substring(0, 7) === '2026-07').length,
+  }), [nichesOnly])
 
   const availableMonths = useMemo(
     () => [...new Set(ideas.map(i => i.date.substring(0, 7)))].sort().reverse(),
@@ -210,7 +224,7 @@ export default function App() {
 
   const hasFilters = useMemo(() => checkFiltered(filterState), [filterState])
 
-  // Detail navigation — index into the currently filtered flat list
+  // Detail navigation for ideas
   const flatFiltered = useMemo(
     () => groupKeys.flatMap(k => grouped[k] ?? []).sort((a, b) => b.date.localeCompare(a.date)),
     [grouped, groupKeys],
@@ -221,66 +235,182 @@ export default function App() {
     [detailIdea, flatFiltered],
   )
 
+  // Niche detail navigation
+  const nicheFlatList = useMemo(
+    () => nichesOnly.sort((a, b) => b.date.localeCompare(a.date)),
+    [nichesOnly],
+  )
+
+  const nicheIdx = useMemo(
+    () => detailNiche ? nicheFlatList.findIndex(i => i.id === detailNiche.id) : -1,
+    [detailNiche, nicheFlatList],
+  )
+
   const openDetail = useCallback((idea: Idea) => setDetailIdea(idea), [])
   const closeDetail = useCallback(() => setDetailIdea(null), [])
   const navigateDetail = useCallback((idea: Idea) => setDetailIdea(idea), [])
 
+  const openNicheDetail = useCallback((niche: Idea) => setDetailNiche(niche), [])
+  const closeNicheDetail = useCallback(() => setDetailNiche(null), [])
+  const navigateNiche = useCallback((niche: Idea) => setDetailNiche(niche), [])
+
   const prevIdea = detailIdx > 0 ? flatFiltered[detailIdx - 1] : null
   const nextIdea = detailIdx < flatFiltered.length - 1 ? flatFiltered[detailIdx + 1] : null
+  const prevNiche = nicheIdx > 0 ? nicheFlatList[nicheIdx - 1] : null
+  const nextNiche = nicheIdx < nicheFlatList.length - 1 ? nicheFlatList[nicheIdx + 1] : null
+
+  const handleTabChange = useCallback((tab: PageTab) => {
+    setActiveTab(tab)
+    setDetailIdea(null)
+    setDetailNiche(null)
+    resetFilters()
+  }, [resetFilters])
 
   const resolvedMode = resolveMode(themeMode)
 
   return (
     <Theme theme={neutralTheme} mode={resolvedMode}>
       <div style={{ minHeight: '100vh', background: 'var(--color-background-body)' }}>
-        <NavBar themeMode={themeMode} onThemeToggle={handleThemeToggle} />
+        <NavBar
+          themeMode={themeMode}
+          onThemeToggle={handleThemeToggle}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          ideaCount={ideasOnly.length}
+          nicheCount={nichesOnly.length}
+        />
 
         <main>
-          <HeroSection totalIdeas={ideas.length} />
+          {activeTab === 'ideas' ? (
+            <>
+              <HeroSection totalIdeas={ideasOnly.length} />
 
-          <div style={{ maxWidth: 'var(--app-max-width)', margin: '0 auto', padding: '0 20px' }}>
-            <StatsBar stats={stats} />
+              <div style={{ maxWidth: 'var(--app-max-width)', margin: '0 auto', padding: '0 20px' }}>
+                <StatsBar stats={stats} />
 
-            <FilterBar
-              ideas={ideas}
-              monthFilter={monthFilter}
-              catFilter={catFilter}
-              regionFilter={regionFilter}
-              sourceFilter={sourceFilter}
-              searchQuery={searchQuery}
-              bestOnly={bestOnly}
-              viewMode={viewMode}
-              collections={collections}
-              selectedCollection={selectedCollection}
-              onMonthChange={setMonthFilter}
-              onCatChange={setCatFilter}
-              onRegionChange={setRegionFilter}
-              onSourceChange={setSourceFilter}
-              onSearchChange={setSearchQuery}
-              onBestToggle={() => setBestOnly(b => !b)}
-              onViewModeChange={setViewMode}
-              onResetFilters={resetFilters}
-              onCollectionCreate={createCollection}
-              onCollectionSelect={setSelectedCollection}
-              availableMonths={availableMonths}
-              filteredCount={filtered.length}
-              isFiltered={hasFilters || selectedCollection !== null}
-            />
+                <FilterBar
+                  ideas={ideasOnly}
+                  monthFilter={monthFilter}
+                  catFilter={catFilter}
+                  regionFilter={regionFilter}
+                  sourceFilter={sourceFilter}
+                  searchQuery={searchQuery}
+                  bestOnly={bestOnly}
+                  viewMode={viewMode}
+                  collections={collections}
+                  selectedCollection={selectedCollection}
+                  onMonthChange={setMonthFilter}
+                  onCatChange={setCatFilter}
+                  onRegionChange={setRegionFilter}
+                  onSourceChange={setSourceFilter}
+                  onSearchChange={setSearchQuery}
+                  onBestToggle={() => setBestOnly(b => !b)}
+                  onViewModeChange={setViewMode}
+                  onResetFilters={resetFilters}
+                  onCollectionCreate={createCollection}
+                  onCollectionSelect={setSelectedCollection}
+                  availableMonths={availableMonths}
+                  filteredCount={filtered.length}
+                  isFiltered={hasFilters || selectedCollection !== null}
+                  activeTab={activeTab}
+                />
 
-            <IdeaGrid
-              groups={grouped}
-              groupKeys={groupKeys}
-              toggleStar={toggleStar}
-              formatMonth={formatMonth}
-              formatDate={formatDate}
-              loading={loading}
-              viewMode={viewMode}
-              isFiltered={hasFilters}
-              onOpenDetail={openDetail}
-              collections={collections}
-              onAddToCollection={addToCollection}
-            />
-          </div>
+                <IdeaGrid
+                  groups={grouped}
+                  groupKeys={groupKeys}
+                  toggleStar={toggleStar}
+                  formatMonth={formatMonth}
+                  formatDate={formatDate}
+                  loading={loading}
+                  viewMode={viewMode}
+                  isFiltered={hasFilters}
+                  onOpenDetail={openDetail}
+                  collections={collections}
+                  onAddToCollection={addToCollection}
+                />
+              </div>
+            </>
+          ) : (
+            <div style={{ maxWidth: 'var(--app-max-width)', margin: '0 auto', padding: '0 20px' }}>
+              {/* Niches header */}
+              <div style={{
+                padding: '40px 0 24px',
+                display: 'flex',
+                alignItems: 'flex-end',
+                justifyContent: 'space-between',
+                gap: 20,
+                flexWrap: 'wrap',
+              }}>
+                <div>
+                  <h1 style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: 'clamp(1.8rem, 4vw, 2.4rem)',
+                    fontWeight: 400,
+                    margin: 0,
+                    letterSpacing: '-0.01em',
+                    color: 'var(--color-text-primary)',
+                  }}>
+                    Niches Business
+                  </h1>
+                  <p style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: 12,
+                    color: 'var(--color-text-secondary)',
+                    margin: '6px 0 0',
+                  }}>
+                    Analyses hebdomadaires des opportunités de marché
+                  </p>
+                </div>
+                <div style={{
+                  display: 'flex',
+                  gap: 20,
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: 12,
+                  color: 'var(--color-text-secondary)',
+                }}>
+                  <span><span className="counter-num">{nicheStats.total}</span> niches</span>
+                  {nicheStats.starred > 0 && <span><span className="counter-num">{nicheStats.starred}</span> favoris</span>}
+                  <span><span className="counter-num">{nicheStats.thisMonth}</span> ce mois</span>
+                </div>
+              </div>
+
+              <FilterBar
+                ideas={nichesOnly}
+                monthFilter={monthFilter}
+                catFilter={catFilter}
+                regionFilter={regionFilter}
+                sourceFilter={sourceFilter}
+                searchQuery={searchQuery}
+                bestOnly={bestOnly}
+                viewMode={viewMode}
+                collections={collections}
+                selectedCollection={selectedCollection}
+                onMonthChange={setMonthFilter}
+                onCatChange={setCatFilter}
+                onRegionChange={setRegionFilter}
+                onSourceChange={setSourceFilter}
+                onSearchChange={setSearchQuery}
+                onBestToggle={() => setBestOnly(b => !b)}
+                onViewModeChange={setViewMode}
+                onResetFilters={resetFilters}
+                onCollectionCreate={createCollection}
+                onCollectionSelect={setSelectedCollection}
+                availableMonths={availableMonths}
+                filteredCount={filtered.length}
+                isFiltered={hasFilters || selectedCollection !== null}
+                activeTab={activeTab}
+              />
+
+              <NicheGrid
+                niches={filtered}
+                toggleStar={toggleStar}
+                formatDate={formatDate}
+                onOpenDetail={openNicheDetail}
+                isFiltered={hasFilters}
+                loading={loading}
+              />
+            </div>
+          )}
         </main>
 
         <Footer />
@@ -294,6 +424,18 @@ export default function App() {
             nextIdea={nextIdea}
             onClose={closeDetail}
             onNavigate={navigateDetail}
+            toggleStar={toggleStar}
+            formatDate={formatDate}
+          />
+        )}
+
+        {detailNiche && (
+          <NicheDetail
+            niche={detailNiche}
+            prevNiche={prevNiche}
+            nextNiche={nextNiche}
+            onClose={closeNicheDetail}
+            onNavigate={navigateNiche}
             toggleStar={toggleStar}
             formatDate={formatDate}
           />
