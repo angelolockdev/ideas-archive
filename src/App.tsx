@@ -11,6 +11,10 @@ import { IdeaGrid } from './components/IdeaGrid'
 import { IdeaDetail } from './components/IdeaDetail'
 import { NicheGrid } from './components/NicheGrid'
 import { NicheDetail } from './components/NicheDetail'
+import { JobGrid } from './components/JobGrid'
+import { JobDetail } from './components/JobDetail'
+import { TradingGrid } from './components/TradingGrid'
+import { TradingDetail } from './components/TradingDetail'
 import { AgentChat } from './components/AgentChat'
 import { Footer } from './components/Footer'
 import { decodeFilters, isFiltered as checkFiltered } from './lib/url'
@@ -71,6 +75,8 @@ export default function App() {
 
   const [detailIdea, setDetailIdea] = useState<Idea | null>(null)
   const [detailNiche, setDetailNiche] = useState<Idea | null>(null)
+  const [detailJob, setDetailJob] = useState<Idea | null>(null)
+  const [detailTrading, setDetailTrading] = useState<Idea | null>(null)
 
   // Load data
   useEffect(() => {
@@ -156,15 +162,28 @@ export default function App() {
     )
   }, [])
 
-  // --- Ideas specific ---
-  const ideasOnly = useMemo(() => ideas.filter(i => i.source !== 'scan-niches'), [ideas])
+  // Split by source
+  const ideasOnly = useMemo(() => ideas.filter(i =>
+    i.source === 'idees-matin' || i.source === 'self-improving'
+  ), [ideas])
   const nichesOnly = useMemo(() => ideas.filter(i => i.source === 'scan-niches'), [ideas])
+  const jobsOnly = useMemo(() => ideas.filter(i => i.source === 'freelance'), [ideas])
+  const tradingOnly = useMemo(() => ideas.filter(i => i.source === 'trading'), [ideas])
 
-  // Filter ideas (memoized)
+  // Get active pool
+  const activePool = useMemo(() => {
+    switch (activeTab) {
+      case 'niches': return nichesOnly
+      case 'jobs': return jobsOnly
+      case 'trading': return tradingOnly
+      default: return ideasOnly
+    }
+  }, [activeTab, ideasOnly, nichesOnly, jobsOnly, tradingOnly])
+
+  // Filter
   const filtered = useMemo(() => {
-    let pool = activeTab === 'niches' ? nichesOnly : ideasOnly
+    let pool = activePool
 
-    // Collection filter (pre-filter before other filters)
     if (selectedCollection) {
       const col = collections.find(c => c.id === selectedCollection)
       if (col) pool = pool.filter(i => col.ideaIds.includes(i.id))
@@ -184,9 +203,9 @@ export default function App() {
       }
       return true
     })
-  }, [ideas, activeTab, ideasOnly, nichesOnly, monthFilter, catFilter, regionFilter, sourceFilter, bestOnly, searchQuery, selectedCollection, collections])
+  }, [activePool, monthFilter, catFilter, regionFilter, sourceFilter, bestOnly, searchQuery, selectedCollection, collections])
 
-  // Group ideas by month (for ideas tab)
+  // Group ideas by month (for ideas tab only)
   const { grouped, groupKeys } = useMemo(() => {
     const grouped = filtered.reduce<Record<string, Idea[]>>((acc, idea) => {
       const m = idea.date.substring(0, 7)
@@ -211,6 +230,18 @@ export default function App() {
     starred: nichesOnly.filter(i => i.status === 'starred').length,
     thisMonth: nichesOnly.filter(i => i.date.substring(0, 7) === '2026-07').length,
   }), [nichesOnly])
+
+  const jobStats = useMemo(() => ({
+    total: jobsOnly.length,
+    starred: jobsOnly.filter(i => i.status === 'starred').length,
+    thisMonth: jobsOnly.filter(i => i.date.substring(0, 7) === '2026-07').length,
+  }), [jobsOnly])
+
+  const tradingStats = useMemo(() => ({
+    total: tradingOnly.length,
+    starred: tradingOnly.filter(i => i.status === 'starred').length,
+    thisMonth: tradingOnly.filter(i => i.date.substring(0, 7) === '2026-07').length,
+  }), [tradingOnly])
 
   const availableMonths = useMemo(
     () => [...new Set(ideas.map(i => i.date.substring(0, 7)))].sort().reverse(),
@@ -246,6 +277,28 @@ export default function App() {
     [detailNiche, nicheFlatList],
   )
 
+  // Job detail navigation
+  const jobFlatList = useMemo(
+    () => jobsOnly.sort((a, b) => b.date.localeCompare(a.date)),
+    [jobsOnly],
+  )
+
+  const jobIdx = useMemo(
+    () => detailJob ? jobFlatList.findIndex(i => i.id === detailJob.id) : -1,
+    [detailJob, jobFlatList],
+  )
+
+  // Trading detail navigation
+  const tradingFlatList = useMemo(
+    () => tradingOnly.sort((a, b) => b.date.localeCompare(a.date)),
+    [tradingOnly],
+  )
+
+  const tradingIdx = useMemo(
+    () => detailTrading ? tradingFlatList.findIndex(i => i.id === detailTrading.id) : -1,
+    [detailTrading, tradingFlatList],
+  )
+
   const openDetail = useCallback((idea: Idea) => setDetailIdea(idea), [])
   const closeDetail = useCallback(() => setDetailIdea(null), [])
   const navigateDetail = useCallback((idea: Idea) => setDetailIdea(idea), [])
@@ -254,19 +307,163 @@ export default function App() {
   const closeNicheDetail = useCallback(() => setDetailNiche(null), [])
   const navigateNiche = useCallback((niche: Idea) => setDetailNiche(niche), [])
 
+  const openJobDetail = useCallback((job: Idea) => setDetailJob(job), [])
+  const closeJobDetail = useCallback(() => setDetailJob(null), [])
+  const navigateJob = useCallback((job: Idea) => setDetailJob(job), [])
+
+  const openTradingDetail = useCallback((strat: Idea) => setDetailTrading(strat), [])
+  const closeTradingDetail = useCallback(() => setDetailTrading(null), [])
+  const navigateTrading = useCallback((strat: Idea) => setDetailTrading(strat), [])
+
   const prevIdea = detailIdx > 0 ? flatFiltered[detailIdx - 1] : null
   const nextIdea = detailIdx < flatFiltered.length - 1 ? flatFiltered[detailIdx + 1] : null
   const prevNiche = nicheIdx > 0 ? nicheFlatList[nicheIdx - 1] : null
   const nextNiche = nicheIdx < nicheFlatList.length - 1 ? nicheFlatList[nicheIdx + 1] : null
+  const prevJob = jobIdx > 0 ? jobFlatList[jobIdx - 1] : null
+  const nextJob = jobIdx < jobFlatList.length - 1 ? jobFlatList[jobIdx + 1] : null
+  const prevTrading = tradingIdx > 0 ? tradingFlatList[tradingIdx - 1] : null
+  const nextTrading = tradingIdx < tradingFlatList.length - 1 ? tradingFlatList[tradingIdx + 1] : null
 
   const handleTabChange = useCallback((tab: PageTab) => {
     setActiveTab(tab)
     setDetailIdea(null)
     setDetailNiche(null)
+    setDetailJob(null)
+    setDetailTrading(null)
     resetFilters()
   }, [resetFilters])
 
   const resolvedMode = resolveMode(themeMode)
+
+  const tabLabel = activeTab === 'niches' ? 'niche' : activeTab === 'jobs' ? 'offre' : activeTab === 'trading' ? 'stratégie' : 'idée'
+
+  // Render active tab content
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'niches':
+        return (
+          <>
+            <div style={{ padding: '40px 0 24px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
+              <div>
+                <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.8rem, 4vw, 2.4rem)', fontWeight: 400, margin: 0, letterSpacing: '-0.01em', color: 'var(--color-text-primary)' }}>
+                  Niches Business
+                </h1>
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--color-text-secondary)', margin: '6px 0 0' }}>
+                  Analyses hebdomadaires des opportunités de marché
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: 20, fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--color-text-secondary)' }}>
+                <span><span className="counter-num">{nicheStats.total}</span> niches</span>
+                {nicheStats.starred > 0 && <span><span className="counter-num">{nicheStats.starred}</span> favoris</span>}
+                <span><span className="counter-num">{nicheStats.thisMonth}</span> ce mois</span>
+              </div>
+            </div>
+            <FilterBar
+              ideas={nichesOnly}
+              monthFilter={monthFilter} catFilter={catFilter} regionFilter={regionFilter} sourceFilter={sourceFilter}
+              searchQuery={searchQuery} bestOnly={bestOnly} viewMode={viewMode}
+              collections={collections} selectedCollection={selectedCollection}
+              onMonthChange={setMonthFilter} onCatChange={setCatFilter} onRegionChange={setRegionFilter} onSourceChange={setSourceFilter}
+              onSearchChange={setSearchQuery} onBestToggle={() => setBestOnly(b => !b)} onViewModeChange={setViewMode}
+              onResetFilters={resetFilters} onCollectionCreate={createCollection} onCollectionSelect={setSelectedCollection}
+              availableMonths={availableMonths} filteredCount={filtered.length} isFiltered={hasFilters || selectedCollection !== null}
+              activeTab={activeTab}
+            />
+            <NicheGrid niches={filtered} toggleStar={toggleStar} formatDate={formatDate} onOpenDetail={openNicheDetail} isFiltered={hasFilters} loading={loading} />
+          </>
+        )
+      case 'jobs':
+        return (
+          <>
+            <div style={{ padding: '40px 0 24px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
+              <div>
+                <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.8rem, 4vw, 2.4rem)', fontWeight: 400, margin: 0, letterSpacing: '-0.01em', color: 'var(--color-text-primary)' }}>
+                  Emplois Tech
+                </h1>
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--color-text-secondary)', margin: '6px 0 0' }}>
+                  Missions freelance, CDI et stages pour développeurs
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: 20, fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--color-text-secondary)' }}>
+                <span><span className="counter-num">{jobStats.total}</span> offres</span>
+                {jobStats.starred > 0 && <span><span className="counter-num">{jobStats.starred}</span> favoris</span>}
+                <span><span className="counter-num">{jobStats.thisMonth}</span> ce mois</span>
+              </div>
+            </div>
+            <FilterBar
+              ideas={jobsOnly}
+              monthFilter={monthFilter} catFilter={catFilter} regionFilter={regionFilter} sourceFilter={sourceFilter}
+              searchQuery={searchQuery} bestOnly={bestOnly} viewMode={viewMode}
+              collections={collections} selectedCollection={selectedCollection}
+              onMonthChange={setMonthFilter} onCatChange={setCatFilter} onRegionChange={setRegionFilter} onSourceChange={setSourceFilter}
+              onSearchChange={setSearchQuery} onBestToggle={() => setBestOnly(b => !b)} onViewModeChange={setViewMode}
+              onResetFilters={resetFilters} onCollectionCreate={createCollection} onCollectionSelect={setSelectedCollection}
+              availableMonths={availableMonths} filteredCount={filtered.length} isFiltered={hasFilters || selectedCollection !== null}
+              activeTab={activeTab}
+            />
+            <JobGrid jobs={filtered} toggleStar={toggleStar} formatDate={formatDate} onOpenDetail={openJobDetail} isFiltered={hasFilters} loading={loading} />
+          </>
+        )
+      case 'trading':
+        return (
+          <>
+            <div style={{ padding: '40px 0 24px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
+              <div>
+                <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.8rem, 4vw, 2.4rem)', fontWeight: 400, margin: 0, letterSpacing: '-0.01em', color: 'var(--color-text-primary)' }}>
+                  Stratégies Trading
+                </h1>
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--color-text-secondary)', margin: '6px 0 0' }}>
+                  Analyses SMC/OTE, backtests et opportunités de marché
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: 20, fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--color-text-secondary)' }}>
+                <span><span className="counter-num">{tradingStats.total}</span> stratégies</span>
+                {tradingStats.starred > 0 && <span><span className="counter-num">{tradingStats.starred}</span> favoris</span>}
+                <span><span className="counter-num">{tradingStats.thisMonth}</span> ce mois</span>
+              </div>
+            </div>
+            <FilterBar
+              ideas={tradingOnly}
+              monthFilter={monthFilter} catFilter={catFilter} regionFilter={regionFilter} sourceFilter={sourceFilter}
+              searchQuery={searchQuery} bestOnly={bestOnly} viewMode={viewMode}
+              collections={collections} selectedCollection={selectedCollection}
+              onMonthChange={setMonthFilter} onCatChange={setCatFilter} onRegionChange={setRegionFilter} onSourceChange={setSourceFilter}
+              onSearchChange={setSearchQuery} onBestToggle={() => setBestOnly(b => !b)} onViewModeChange={setViewMode}
+              onResetFilters={resetFilters} onCollectionCreate={createCollection} onCollectionSelect={setSelectedCollection}
+              availableMonths={availableMonths} filteredCount={filtered.length} isFiltered={hasFilters || selectedCollection !== null}
+              activeTab={activeTab}
+            />
+            <TradingGrid strategies={filtered} toggleStar={toggleStar} formatDate={formatDate} onOpenDetail={openTradingDetail} isFiltered={hasFilters} loading={loading} />
+          </>
+        )
+      default: // ideas
+        return (
+          <>
+            <HeroSection totalIdeas={ideasOnly.length} />
+            <div style={{ maxWidth: 'var(--app-max-width)', margin: '0 auto', padding: '0 20px' }}>
+              <StatsBar stats={stats} />
+              <FilterBar
+                ideas={ideasOnly}
+                monthFilter={monthFilter} catFilter={catFilter} regionFilter={regionFilter} sourceFilter={sourceFilter}
+                searchQuery={searchQuery} bestOnly={bestOnly} viewMode={viewMode}
+                collections={collections} selectedCollection={selectedCollection}
+                onMonthChange={setMonthFilter} onCatChange={setCatFilter} onRegionChange={setRegionFilter} onSourceChange={setSourceFilter}
+                onSearchChange={setSearchQuery} onBestToggle={() => setBestOnly(b => !b)} onViewModeChange={setViewMode}
+                onResetFilters={resetFilters} onCollectionCreate={createCollection} onCollectionSelect={setSelectedCollection}
+                availableMonths={availableMonths} filteredCount={filtered.length} isFiltered={hasFilters || selectedCollection !== null}
+                activeTab={activeTab}
+              />
+              <IdeaGrid
+                groups={grouped} groupKeys={groupKeys} toggleStar={toggleStar}
+                formatMonth={formatMonth} formatDate={formatDate} loading={loading}
+                viewMode={viewMode} isFiltered={hasFilters} onOpenDetail={openDetail}
+                collections={collections} onAddToCollection={addToCollection}
+              />
+            </div>
+          </>
+        )
+    }
+  }
 
   return (
     <Theme theme={neutralTheme} mode={resolvedMode}>
@@ -278,166 +475,45 @@ export default function App() {
           onTabChange={handleTabChange}
           ideaCount={ideasOnly.length}
           nicheCount={nichesOnly.length}
+          jobCount={jobsOnly.length}
+          tradingCount={tradingOnly.length}
         />
 
         <main>
-          {activeTab === 'ideas' ? (
-            <>
-              <HeroSection totalIdeas={ideasOnly.length} />
-
-              <div style={{ maxWidth: 'var(--app-max-width)', margin: '0 auto', padding: '0 20px' }}>
-                <StatsBar stats={stats} />
-
-                <FilterBar
-                  ideas={ideasOnly}
-                  monthFilter={monthFilter}
-                  catFilter={catFilter}
-                  regionFilter={regionFilter}
-                  sourceFilter={sourceFilter}
-                  searchQuery={searchQuery}
-                  bestOnly={bestOnly}
-                  viewMode={viewMode}
-                  collections={collections}
-                  selectedCollection={selectedCollection}
-                  onMonthChange={setMonthFilter}
-                  onCatChange={setCatFilter}
-                  onRegionChange={setRegionFilter}
-                  onSourceChange={setSourceFilter}
-                  onSearchChange={setSearchQuery}
-                  onBestToggle={() => setBestOnly(b => !b)}
-                  onViewModeChange={setViewMode}
-                  onResetFilters={resetFilters}
-                  onCollectionCreate={createCollection}
-                  onCollectionSelect={setSelectedCollection}
-                  availableMonths={availableMonths}
-                  filteredCount={filtered.length}
-                  isFiltered={hasFilters || selectedCollection !== null}
-                  activeTab={activeTab}
-                />
-
-                <IdeaGrid
-                  groups={grouped}
-                  groupKeys={groupKeys}
-                  toggleStar={toggleStar}
-                  formatMonth={formatMonth}
-                  formatDate={formatDate}
-                  loading={loading}
-                  viewMode={viewMode}
-                  isFiltered={hasFilters}
-                  onOpenDetail={openDetail}
-                  collections={collections}
-                  onAddToCollection={addToCollection}
-                />
-              </div>
-            </>
-          ) : (
-            <div style={{ maxWidth: 'var(--app-max-width)', margin: '0 auto', padding: '0 20px' }}>
-              {/* Niches header */}
-              <div style={{
-                padding: '40px 0 24px',
-                display: 'flex',
-                alignItems: 'flex-end',
-                justifyContent: 'space-between',
-                gap: 20,
-                flexWrap: 'wrap',
-              }}>
-                <div>
-                  <h1 style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: 'clamp(1.8rem, 4vw, 2.4rem)',
-                    fontWeight: 400,
-                    margin: 0,
-                    letterSpacing: '-0.01em',
-                    color: 'var(--color-text-primary)',
-                  }}>
-                    Niches Business
-                  </h1>
-                  <p style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: 12,
-                    color: 'var(--color-text-secondary)',
-                    margin: '6px 0 0',
-                  }}>
-                    Analyses hebdomadaires des opportunités de marché
-                  </p>
-                </div>
-                <div style={{
-                  display: 'flex',
-                  gap: 20,
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: 12,
-                  color: 'var(--color-text-secondary)',
-                }}>
-                  <span><span className="counter-num">{nicheStats.total}</span> niches</span>
-                  {nicheStats.starred > 0 && <span><span className="counter-num">{nicheStats.starred}</span> favoris</span>}
-                  <span><span className="counter-num">{nicheStats.thisMonth}</span> ce mois</span>
-                </div>
-              </div>
-
-              <FilterBar
-                ideas={nichesOnly}
-                monthFilter={monthFilter}
-                catFilter={catFilter}
-                regionFilter={regionFilter}
-                sourceFilter={sourceFilter}
-                searchQuery={searchQuery}
-                bestOnly={bestOnly}
-                viewMode={viewMode}
-                collections={collections}
-                selectedCollection={selectedCollection}
-                onMonthChange={setMonthFilter}
-                onCatChange={setCatFilter}
-                onRegionChange={setRegionFilter}
-                onSourceChange={setSourceFilter}
-                onSearchChange={setSearchQuery}
-                onBestToggle={() => setBestOnly(b => !b)}
-                onViewModeChange={setViewMode}
-                onResetFilters={resetFilters}
-                onCollectionCreate={createCollection}
-                onCollectionSelect={setSelectedCollection}
-                availableMonths={availableMonths}
-                filteredCount={filtered.length}
-                isFiltered={hasFilters || selectedCollection !== null}
-                activeTab={activeTab}
-              />
-
-              <NicheGrid
-                niches={filtered}
-                toggleStar={toggleStar}
-                formatDate={formatDate}
-                onOpenDetail={openNicheDetail}
-                isFiltered={hasFilters}
-                loading={loading}
-              />
-            </div>
-          )}
+          <div style={{ maxWidth: 'var(--app-max-width)', margin: '0 auto', padding: '0 20px' }}>
+            {renderTabContent()}
+          </div>
         </main>
 
         <Footer />
-
         <AgentChat ideas={ideas} />
 
         {detailIdea && (
           <IdeaDetail
-            idea={detailIdea}
-            prevIdea={prevIdea}
-            nextIdea={nextIdea}
-            onClose={closeDetail}
-            onNavigate={navigateDetail}
-            toggleStar={toggleStar}
-            formatDate={formatDate}
+            idea={detailIdea} prevIdea={prevIdea} nextIdea={nextIdea}
+            onClose={closeDetail} onNavigate={navigateDetail}
+            toggleStar={toggleStar} formatDate={formatDate}
           />
         )}
-
         {detailNiche && (
           <NicheDetail
-            niche={detailNiche}
-            prevNiche={prevNiche}
-            nextNiche={nextNiche}
-            onClose={closeNicheDetail}
-            onNavigate={navigateNiche}
-            toggleStar={toggleStar}
-            formatDate={formatDate}
+            niche={detailNiche} prevNiche={prevNiche} nextNiche={nextNiche}
+            onClose={closeNicheDetail} onNavigate={navigateNiche}
+            toggleStar={toggleStar} formatDate={formatDate}
+          />
+        )}
+        {detailJob && (
+          <JobDetail
+            job={detailJob} prevJob={prevJob} nextJob={nextJob}
+            onClose={closeJobDetail} onNavigate={navigateJob}
+            toggleStar={toggleStar} formatDate={formatDate}
+          />
+        )}
+        {detailTrading && (
+          <TradingDetail
+            strategy={detailTrading} prevStrategy={prevTrading} nextStrategy={nextTrading}
+            onClose={closeTradingDetail} onNavigate={navigateTrading}
+            toggleStar={toggleStar} formatDate={formatDate}
           />
         )}
       </div>

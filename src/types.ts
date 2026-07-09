@@ -9,7 +9,7 @@ export interface Idea {
   revenue: string
   stack: string
   difficulty: number | null
-  source: 'idees-matin' | 'self-improving' | 'scan-niches'
+  source: 'idees-matin' | 'self-improving' | 'scan-niches' | 'freelance' | 'trading'
   region: 'global' | 'madagascar'
   theme?: string
   keyword?: string
@@ -18,12 +18,19 @@ export interface Idea {
   action_plan?: string
   competition?: string
   market_size?: string
+  company?: string
+  location?: string
+  employment_type?: string
+  link?: string
+  salary?: string
+  posted_date?: string
+  fit_score?: number
   date: string
   status: 'pending' | 'starred'
   category: Category
 }
 
-export type Category = 'productivity' | 'ai' | 'fintech' | 'health' | 'transport' | 'climate' | 'social' | 'edtech' | 'devtools' | 'iot' | 'business-niche' | 'other'
+export type Category = 'productivity' | 'ai' | 'fintech' | 'health' | 'transport' | 'climate' | 'social' | 'edtech' | 'devtools' | 'iot' | 'business-niche' | 'job' | 'trading-strategy' | 'other'
 
 export interface MonthlyData {
   month: string
@@ -31,7 +38,6 @@ export interface MonthlyData {
   ideas: Idea[]
 }
 
-/** A user-curated named list of ideas, persisted to localStorage. */
 export interface Collection {
   id: string
   name: string
@@ -45,6 +51,8 @@ export const SOURCE_LABELS: Record<Idea['source'], string> = {
   'idees-matin': 'Idées du matin',
   'self-improving': 'Self-Improving',
   'scan-niches': 'Niches Business',
+  'freelance': 'Emplois Tech',
+  'trading': 'Stratégies Trading',
 }
 
 export const REGION_LABELS: Record<Idea['region'], string> = {
@@ -72,6 +80,8 @@ export const CATEGORIES: Record<Category, string> = {
   devtools: 'DevTools',
   iot: 'IoT',
   'business-niche': 'Niches Business',
+  'job': 'Emplois Tech',
+  'trading-strategy': 'Trading',
   other: 'Autre',
 }
 
@@ -87,6 +97,8 @@ export const CAT_COLORS: Record<Category, string> = {
   devtools: '#a78bfa',
   iot: '#2dd4bf',
   'business-niche': '#f97316',
+  'job': '#3b82f6',
+  'trading-strategy': '#8b5cf6',
   other: '#9ca3af',
 }
 
@@ -102,6 +114,8 @@ export const CAT_ICONS: Record<Category, string> = {
   devtools: '🔧',
   iot: '🏡',
   'business-niche': '📊',
+  'job': '💼',
+  'trading-strategy': '📈',
   other: '💡',
 }
 
@@ -114,7 +128,6 @@ export const COMPETITION_LABELS: Record<string, string> = {
   'Élevée': '🔴 Élevée',
   'Tres faible': '🟢 Très faible',
   'Très élevée': '🔴 Très élevée',
-  'Tres elevee': '🔴 Très élevée',
 }
 
 export const COMPETITION_COLORS: Record<string, string> = {
@@ -124,7 +137,13 @@ export const COMPETITION_COLORS: Record<string, string> = {
   'Élevée': '#ef4444',
   'Tres faible': '#34d399',
   'Très élevée': '#dc2626',
-  'Tres elevee': '#dc2626',
 }
 
-export type PageTab = 'ideas' | 'niches'
+export const JOB_TYPE_COLORS: Record<string, string> = {
+  'Freelance': '#f97316',
+  'CDI': '#3b82f6',
+  'Remote': '#34d399',
+  'Stage': '#8b5cf6',
+}
+
+export type PageTab = 'ideas' | 'niches' | 'jobs' | 'trading'

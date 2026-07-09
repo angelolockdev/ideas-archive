@@ -71,6 +71,8 @@ export function FilterBar({
     'idees-matin': ideas.filter(i => i.source === 'idees-matin').length,
     'self-improving': ideas.filter(i => i.source === 'self-improving').length,
     'scan-niches': ideas.filter(i => i.source === 'scan-niches').length,
+    'freelance': ideas.filter(i => i.source === 'freelance').length,
+    'trading': ideas.filter(i => i.source === 'trading').length,
   }), [ideas])
 
   const handleShare = useCallback(() => {
@@ -153,6 +155,8 @@ export function FilterBar({
           <option value="idees-matin">Idées du matin ({sourceCounts['idees-matin']})</option>
           <option value="self-improving">Self-Improving ({sourceCounts['self-improving']})</option>
           <option value="scan-niches">Niches Business ({sourceCounts['scan-niches']})</option>
+          <option value="freelance">Emplois Tech ({sourceCounts['freelance']})</option>
+          <option value="trading">Stratégies Trading ({sourceCounts['trading']})</option>
         </select>
 
         {/* Search */}

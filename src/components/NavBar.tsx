@@ -6,11 +6,13 @@ interface NavBarProps {
   onThemeToggle: () => void
   activeTab: PageTab
   onTabChange: (tab: PageTab) => void
-  nicheCount: number
   ideaCount: number
+  nicheCount: number
+  jobCount: number
+  tradingCount: number
 }
 
-export function NavBar({ themeMode, onThemeToggle, activeTab, onTabChange, nicheCount, ideaCount }: NavBarProps) {
+export function NavBar({ themeMode, onThemeToggle, activeTab, onTabChange, ideaCount, nicheCount, jobCount, tradingCount }: NavBarProps) {
   const isDark = themeMode === 'dark' || (themeMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
   return (
@@ -74,10 +76,28 @@ export function NavBar({ themeMode, onThemeToggle, activeTab, onTabChange, niche
             <span>📊 Niches</span>
             <span className="nav-tab-count">{nicheCount}</span>
           </button>
+          <button
+            role="tab"
+            aria-selected={activeTab === 'jobs'}
+            onClick={() => onTabChange('jobs')}
+            className={`nav-tab ${activeTab === 'jobs' ? 'active' : ''}`}
+          >
+            <span>💼 Jobs</span>
+            <span className="nav-tab-count">{jobCount}</span>
+          </button>
+          <button
+            role="tab"
+            aria-selected={activeTab === 'trading'}
+            onClick={() => onTabChange('trading')}
+            className={`nav-tab ${activeTab === 'trading' ? 'active' : ''}`}
+          >
+            <span>📈 Trading</span>
+            <span className="nav-tab-count">{tradingCount}</span>
+          </button>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          {/* Dark/light toggle */}
+          {/* Theme toggle */}
           <button
             onClick={onThemeToggle}
             aria-label={isDark ? 'Passer en mode clair' : 'Passer en mode sombre'}
