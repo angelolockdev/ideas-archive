@@ -191,6 +191,34 @@ h1, h2, h3, .display {
   border-radius: inherit;
 }
 
+.card-open-button {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  border: none;
+  border-radius: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+
+.niche-card-inner,
+.job-card-inner,
+.trading-card-inner {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.niche-card-inner .star-btn,
+.job-card-inner .star-btn,
+.trading-card-inner .star-btn,
+.job-card-inner .job-link-hint {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+}
+
 /* Catalog number rail */
 .catalog-no {
   font-family: var(--font-mono);
@@ -995,6 +1023,7 @@ h1, h2, h3, .display {
   font-weight: 600;
   color: var(--ochre);
   cursor: pointer;
+  text-decoration: none;
   transition: opacity 0.15s ease;
 }
 .job-link-hint:hover { opacity: 0.7; }
@@ -1057,6 +1086,7 @@ h1, h2, h3, .display {
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  text-decoration: none;
   transition: opacity 0.15s ease;
 }
 .job-apply-btn:hover { opacity: 0.85; }
@@ -1281,4 +1311,81 @@ h1, h2, h3, .display {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+/* Layout resilience: archive entries are user-provided and may contain long URLs or labels. */
+html, body { overflow-x: clip; }
+
+main, .nav-inner, .filter-bar, .section-header, .modal-container,
+.idea-card, .niche-card, .job-card, .trading-card { min-width: 0; }
+
+.detail-title, .detail-text, .job-detail-value, .niche-metric-value,
+.trading-metric-value, .job-detail-item, .section-summary, .nav-tab {
+  overflow-wrap: anywhere;
+}
+
+.section-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 40px 0 24px;
+}
+
+.section-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.filter-bar { background: var(--color-background-surface); }
+
+@media (max-width: 700px) {
+  .nav-inner { padding: 0 12px !important; gap: 8px; }
+  .brand-name { display: none; }
+  .nav-tabs {
+    min-width: 0;
+    flex: 1;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-left: 0 !important;
+  }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .nav-tab { flex: 0 0 auto; padding: 7px 10px; font-size: 12px; }
+  .nav-actions > a { display: none; }
+
+  .section-header { padding: 28px 0 18px; gap: 12px; }
+  .section-summary { gap: 8px 14px; }
+  .section-summary span { white-space: nowrap; }
+
+  .filter-bar { padding: 12px !important; }
+  .filter-row > .ledger-select { flex: 1 1 145px; min-width: 0; }
+  .filter-search { order: 5; flex-basis: 100% !important; max-width: none !important; }
+  .filter-result { width: 100%; margin-left: 0 !important; justify-content: space-between; }
+
+  .detail-header, .detail-scroll { padding-left: 14px; padding-right: 14px; }
+  .detail-scroll { max-height: calc(100vh - 122px); }
+  .detail-nav { grid-template-columns: 1fr; gap: 4px; }
+  .detail-nav-btn:last-child { justify-content: flex-start; text-align: left !important; }
+  .detail-nav-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .niche-detail-metrics, .trading-detail-metrics, .job-detail-metrics { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 420px) {
+  .brand-mark { display: none; }
+  .nav-actions { flex-shrink: 0; }
+  .nav-tab { padding: 7px 8px; }
+  .nav-tab-count { display: none; }
+
+  .filter-tools { align-items: stretch !important; }
+  .filter-tools > * { flex: 1 1 auto; }
+  .filter-tools .filter-result { flex: 1 0 100%; }
+
+  .niche-card-inner, .job-card-inner, .trading-card-inner { padding: 14px; }
+  .niche-metric, .trading-metric { min-width: min(100%, 110px); }
 }

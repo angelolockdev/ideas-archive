@@ -1,7 +1,7 @@
-import { useRef, useCallback } from 'react'
 import { Star } from 'lucide-react'
 import type { Idea } from '../types'
-import { CAT_COLORS, CAT_ICONS, DIFFICULTY_LABELS } from '../types'
+import { CAT_ICONS, DIFFICULTY_LABELS } from '../types'
+import { useDirectionalGlow } from '../hooks/useDirectionalGlow'
 
 interface TradingCardProps {
   idea: Idea
@@ -17,17 +17,7 @@ const diffPct = (d: number | null) => `${(diffStep(d) / 5) * 100}%`
 
 export function TradingCard({ idea, index, toggleStar, formatDate, onOpen }: TradingCardProps) {
   const starred = idea.status === 'starred'
-  const cardRef = useRef<HTMLDivElement>(null)
-
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const card = cardRef.current
-    if (!card) return
-    const rect = card.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width)  * 100
-    const y = ((e.clientY - rect.top)  / rect.height) * 100
-    card.style.setProperty('--mx', `${x}%`)
-    card.style.setProperty('--my', `${y}%`)
-  }, [])
+  const { cardRef, handleMouseMove } = useDirectionalGlow()
 
   return (
     <div
@@ -36,7 +26,12 @@ export function TradingCard({ idea, index, toggleStar, formatDate, onOpen }: Tra
       style={{ animationDelay: `${(index % 8) * 30}ms` }}
       onMouseMove={handleMouseMove}
     >
-      <div className="trading-card-inner" onClick={() => onOpen(idea)}>
+      <button
+        className="card-open-button"
+        onClick={() => onOpen(idea)}
+        aria-label={`Ouvrir les détails de "${idea.title}"`}
+      />
+      <div className="trading-card-inner">
         {/* Header row */}
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 10 }}>
           {/* Market size badge */}

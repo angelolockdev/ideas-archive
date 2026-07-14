@@ -39,7 +39,8 @@ npm run astryx          # Astryx CLI (for design system inspection)
      - "Idées Matinales Self-Improving": Madagascar ideas with different emoji structure (Theme, Mot-clé, Problème, Solution, Stack, Monétisation, Pourquoi maintenant, MVP)
 
 3. **React App** (`src/App.tsx` is the main container)
-   - Loads all available month files via `fetch('data/{month}.json')`
+   - Loads the generated `data/index.json` manifest, then fetches all declared month files in parallel
+   - `scripts/sync-data.mjs` copies `data/` to `public/data/` and regenerates the manifest before dev and production builds
    - Manages all state: ideas list, filter state, starred status (persisted to localStorage as `ia-stars`)
    - Passes filtered data to child components
 
@@ -114,8 +115,8 @@ interface Idea {
 
 ### Data Loading & State Management
 
-- App loads all available months on mount: `fetch('data/{2026-07,2026-06}.json')`
-- Failed fetches are silently skipped (for future months that don't exist yet)
+- App loads the generated `data/index.json` manifest on mount, then fetches its monthly files in parallel
+- Failed monthly fetches are skipped so a single corrupt archive does not hide the remaining data
 - Starred status is restored from localStorage on load
 - Filtering is real-time as user interacts with UI (no server calls)
 

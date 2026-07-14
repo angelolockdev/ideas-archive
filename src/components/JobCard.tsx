@@ -1,7 +1,8 @@
-import { useRef, useCallback } from 'react'
 import { Star, ExternalLink } from 'lucide-react'
 import type { Idea } from '../types'
-import { CATEGORIES, CAT_COLORS, CAT_ICONS, JOB_TYPE_COLORS } from '../types'
+import { CAT_ICONS, JOB_TYPE_COLORS } from '../types'
+import { safeExternalHref } from '../lib/url'
+import { useDirectionalGlow } from '../hooks/useDirectionalGlow'
 
 interface JobCardProps {
   idea: Idea
@@ -15,18 +16,9 @@ const MAX_VISIBLE_SKILLS = 4
 
 export function JobCard({ idea, index, toggleStar, formatDate, onOpen }: JobCardProps) {
   const starred = idea.status === 'starred'
-  const cardRef = useRef<HTMLDivElement>(null)
+  const { cardRef, handleMouseMove } = useDirectionalGlow()
   const typeColor = idea.employment_type ? (JOB_TYPE_COLORS[idea.employment_type] || '#3b82f6') : '#3b82f6'
-
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const card = cardRef.current
-    if (!card) return
-    const rect = card.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width)  * 100
-    const y = ((e.clientY - rect.top)  / rect.height) * 100
-    card.style.setProperty('--mx', `${x}%`)
-    card.style.setProperty('--my', `${y}%`)
-  }, [])
+  const applicationUrl = safeExternalHref(idea.link)
 
   const skills = (idea.stack || '').split(',').map(s => s.trim()).filter(Boolean)
   const visibleSkills = skills.slice(0, MAX_VISIBLE_SKILLS)
@@ -39,7 +31,12 @@ export function JobCard({ idea, index, toggleStar, formatDate, onOpen }: JobCard
       style={{ animationDelay: `${(index % 8) * 30}ms` }}
       onMouseMove={handleMouseMove}
     >
-      <div className="job-card-inner" onClick={() => onOpen(idea)}>
+      <button
+        className="card-open-button"
+        onClick={() => onOpen(idea)}
+        aria-label={`Ouvrir les détails de "${idea.title}"`}
+      />
+      <div className="job-card-inner">
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 10 }}>
           {/* Type badge */}
@@ -120,14 +117,17 @@ export function JobCard({ idea, index, toggleStar, formatDate, onOpen }: JobCard
         {/* Footer */}
         <div className="job-footer">
           <span className="job-date">{formatDate(idea.date)}</span>
-          {idea.link && (
-            <span
+          {applicationUrl && (
+            <a
               className="job-link-hint"
-              onClick={e => { e.stopPropagation(); window.open(idea.link, '_blank') }}
+              href={applicationUrl}
+              target="_blank"
+              rel="noreferrer"
+              onClick={event => event.stopPropagation()}
             >
               <ExternalLink size={11} />
               Postuler
-            </span>
+            </a>
           )}
         </div>
       </div>

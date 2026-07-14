@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from 'react'
+import { Fragment, useState, useRef, useEffect, useMemo } from 'react'
 import type { Idea } from '../types'
 import { CATEGORIES } from '../types'
 import { buildIndex } from '../lib/tfidf'
@@ -12,14 +12,34 @@ interface AgentChatProps {
   ideas: Idea[]
 }
 
+function MessageContent({ content }: { content: string }) {
+  const lines = content.split('\n')
+
+  return lines.map((line, lineIndex) => (
+    <Fragment key={`${lineIndex}-${line}`}>
+      {line.split(/(\*\*.*?\*\*)/g).map((part, partIndex) =>
+        part.startsWith('**') && part.endsWith('**')
+          ? <strong key={partIndex}>{part.slice(2, -2)}</strong>
+          : <Fragment key={partIndex}>{part}</Fragment>,
+      )}
+      {lineIndex < lines.length - 1 && <br />}
+    </Fragment>
+  ))
+}
+
 function findAnswer(question: string, ideas: Idea[], index: ReturnType<typeof buildIndex>): string {
   const q = question.toLowerCase().trim()
 
   // Intent: categories
   if (/catégori|categori/.test(q)) {
-    const cats = [...new Set(ideas.map(i => i.category))]
-    const lines = cats.map(c => `  ${CATEGORIES[c]} — ${ideas.filter(i => i.category === c).length} idées`).join('\n')
-    return `**Catégories (${cats.length})**\n\n${lines}`
+    const categoryCounts = new Map<Idea['category'], number>()
+    ideas.forEach(idea => {
+      categoryCounts.set(idea.category, (categoryCounts.get(idea.category) ?? 0) + 1)
+    })
+    const lines = [...categoryCounts]
+      .map(([category, count]) => `  ${CATEGORIES[category]} — ${count} idées`)
+      .join('\n')
+    return `**Catégories (${categoryCounts.size})**\n\n${lines}`
   }
 
   // Intent: starred
@@ -158,12 +178,9 @@ export function AgentChat({ ideas }: AgentChatProps) {
                     fontFamily: 'var(--font-body)',
                     border: msg.role === 'assistant' ? '1px solid var(--color-border)' : 'none',
                   }}
-                  dangerouslySetInnerHTML={{
-                    __html: msg.content
-                      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                      .replace(/\n/g, '<br/>'),
-                  }}
-                />
+                >
+                  <MessageContent content={msg.content} />
+                </div>
               </div>
             ))}
 

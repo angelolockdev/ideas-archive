@@ -1,7 +1,8 @@
 import { useEffect, useCallback } from 'react'
 import { X, ArrowLeft, ArrowRight, Star, ExternalLink } from 'lucide-react'
 import type { Idea } from '../types'
-import { CATEGORIES, CAT_ICONS, JOB_TYPE_COLORS } from '../types'
+import { CAT_ICONS, JOB_TYPE_COLORS } from '../types'
+import { safeExternalHref } from '../lib/url'
 
 interface JobDetailProps {
   job: Idea
@@ -11,6 +12,14 @@ interface JobDetailProps {
   onNavigate: (idea: Idea) => void
   toggleStar: (id: string) => void
   formatDate: (d: string) => string
+}
+
+function getLinkLabel(link: string): string {
+  try {
+    return new URL(link).hostname
+  } catch {
+    return 'le site de l’offre'
+  }
 }
 
 export function JobDetail({ job, prevJob, nextJob, onClose, onNavigate, toggleStar, formatDate }: JobDetailProps) {
@@ -30,6 +39,7 @@ export function JobDetail({ job, prevJob, nextJob, onClose, onNavigate, toggleSt
   }, [handleKeyDown])
 
   const typeColor = job.employment_type ? (JOB_TYPE_COLORS[job.employment_type] || '#3b82f6') : '#3b82f6'
+  const applicationUrl = safeExternalHref(job.link)
   const skills = (job.stack || '').split(',').map(s => s.trim()).filter(Boolean)
 
   return (
@@ -107,7 +117,7 @@ export function JobDetail({ job, prevJob, nextJob, onClose, onNavigate, toggleSt
             {job.posted_date && (
               <div className="job-detail-metric">
                 <span className="detail-section-title">Publié le</span>
-                <span className="job-detail-value">{job.posted_date}</span>
+                <span className="job-detail-value">{formatDate(job.posted_date)}</span>
               </div>
             )}
           </div>
@@ -147,17 +157,19 @@ export function JobDetail({ job, prevJob, nextJob, onClose, onNavigate, toggleSt
           )}
 
           {/* Apply link */}
-          {job.link && (
+          {applicationUrl && (
             <div style={{
               marginTop: 20, padding: '14px 0', borderTop: '1px solid var(--color-border)',
             }}>
-              <button
-                onClick={() => window.open(job.link, '_blank')}
+              <a
+                href={applicationUrl}
+                target="_blank"
+                rel="noreferrer"
                 className="job-apply-btn"
               >
                 <ExternalLink size={14} />
-                Postuler sur {new URL(job.link).hostname}
-              </button>
+                Postuler sur {getLinkLabel(applicationUrl)}
+              </a>
             </div>
           )}
 

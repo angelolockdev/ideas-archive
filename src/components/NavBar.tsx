@@ -26,25 +26,25 @@ export function NavBar({ themeMode, onThemeToggle, activeTab, onTabChange, ideaC
         borderBottom: '1px solid var(--color-border)',
       }}
     >
-      <div style={{
+      <div className="nav-inner" style={{
         maxWidth: 'var(--app-max-width)', margin: '0 auto',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         height: 52, padding: '0 20px',
       }}>
         {/* Logotype */}
         <a
-          href="#"
+          href="#/ideas"
           aria-label="Ideas Archive — retour à l'accueil"
           style={{ display: 'flex', alignItems: 'baseline', gap: 8, textDecoration: 'none', flexShrink: 0 }}
         >
-          <span style={{
+          <span className="brand-mark" style={{
             fontFamily: 'var(--font-mono)',
             fontSize: 11,
             color: 'var(--ochre)',
             letterSpacing: '0.1em',
             userSelect: 'none',
           }}>▾ IA</span>
-          <span style={{
+          <span className="brand-name" style={{
             fontFamily: 'var(--font-display)',
             fontSize: 17,
             fontWeight: 400,
@@ -57,7 +57,7 @@ export function NavBar({ themeMode, onThemeToggle, activeTab, onTabChange, ideaC
         </a>
 
         {/* Tabs */}
-        <div role="tablist" aria-label="Vues" style={{ display: 'flex', gap: 2, marginLeft: 24 }}>
+        <div className="nav-tabs" role="tablist" aria-label="Vues" style={{ display: 'flex', gap: 2, marginLeft: 24 }}>
           <button
             role="tab"
             aria-selected={activeTab === 'ideas'}
@@ -96,7 +96,7 @@ export function NavBar({ themeMode, onThemeToggle, activeTab, onTabChange, ideaC
           </button>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           {/* Theme toggle */}
           <button
             onClick={onThemeToggle}

@@ -1,7 +1,7 @@
-import { useRef, useCallback } from 'react'
 import { Star } from 'lucide-react'
 import type { Idea } from '../types'
-import { CATEGORIES, CAT_COLORS, CAT_ICONS, DIFFICULTY_LABELS, COMPETITION_LABELS, COMPETITION_COLORS } from '../types'
+import { CAT_ICONS, DIFFICULTY_LABELS, COMPETITION_LABELS, COMPETITION_COLORS } from '../types'
+import { useDirectionalGlow } from '../hooks/useDirectionalGlow'
 
 interface NicheCardProps {
   idea: Idea
@@ -17,17 +17,7 @@ const diffPct = (d: number | null) => `${(diffStep(d) / 5) * 100}%`
 
 export function NicheCard({ idea, index, toggleStar, formatDate, onOpen }: NicheCardProps) {
   const starred = idea.status === 'starred'
-  const cardRef = useRef<HTMLDivElement>(null)
-
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const card = cardRef.current
-    if (!card) return
-    const rect = card.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width)  * 100
-    const y = ((e.clientY - rect.top)  / rect.height) * 100
-    card.style.setProperty('--mx', `${x}%`)
-    card.style.setProperty('--my', `${y}%`)
-  }, [])
+  const { cardRef, handleMouseMove } = useDirectionalGlow()
 
   const compLabel = idea.competition ? (COMPETITION_LABELS[idea.competition] || idea.competition) : null
   const compColor = idea.competition ? (COMPETITION_COLORS[idea.competition] || '#9ca3af') : null
@@ -39,7 +29,12 @@ export function NicheCard({ idea, index, toggleStar, formatDate, onOpen }: Niche
       style={{ animationDelay: `${(index % 8) * 30}ms` }}
       onMouseMove={handleMouseMove}
     >
-      <div className="niche-card-inner" onClick={() => onOpen(idea)}>
+      <button
+        className="card-open-button"
+        onClick={() => onOpen(idea)}
+        aria-label={`Ouvrir les détails de "${idea.title}"`}
+      />
+      <div className="niche-card-inner">
         {/* Header row */}
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 10 }}>
           {/* Market size badge */}

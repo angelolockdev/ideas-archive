@@ -30,6 +30,13 @@ interface FilterBarProps {
   activeTab: PageTab
 }
 
+const ITEM_LABELS: Record<PageTab, { singular: string; plural: string }> = {
+  ideas: { singular: 'idée', plural: 'idées' },
+  niches: { singular: 'niche', plural: 'niches' },
+  jobs: { singular: 'offre', plural: 'offres' },
+  trading: { singular: 'stratégie', plural: 'stratégies' },
+}
+
 function mlabel(ym: string) {
   const [y, m] = ym.split('-')
   return `${MONTHS_FR[parseInt(m) - 1]} ${y}`
@@ -48,6 +55,7 @@ export function FilterBar({
   const [colOpen, setColOpen] = useState(false)
   const [copied, setCopied] = useState(false)
   const searchRef = useRef<HTMLInputElement>(null)
+  const itemLabel = ITEM_LABELS[activeTab]
 
   // Per-category counts
   const catCounts = useMemo(() => {
@@ -93,15 +101,14 @@ export function FilterBar({
   }, [newColName, onCollectionCreate])
 
   return (
-    <div style={{
-      background: 'var(--color-background-surface)',
+    <div className="filter-bar" style={{
       border: '1px solid var(--color-border)',
       borderRadius: 'var(--radius-container)',
       padding: '14px 18px',
       marginBottom: 24,
     }}>
       {/* Row 1: filters */}
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+      <div className="filter-row" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
 
         {/* Month */}
         <select
@@ -160,7 +167,7 @@ export function FilterBar({
         </select>
 
         {/* Search */}
-        <div style={{ position: 'relative', flex: 1, minWidth: 140, maxWidth: 220 }}>
+        <div className="filter-search" style={{ position: 'relative', flex: 1, minWidth: 140, maxWidth: 220 }}>
           <span
             aria-hidden="true"
             style={{
@@ -176,7 +183,7 @@ export function FilterBar({
             type="search"
             value={searchQuery}
             onChange={e => onSearchChange(e.target.value)}
-            placeholder={`Rechercher ${activeTab === 'niches' ? 'une niche…' : 'une idée…'}`}
+            placeholder={`Rechercher une ${itemLabel.singular}…`}
             className="ledger-search"
             aria-label="Rechercher"
           />
@@ -207,7 +214,7 @@ export function FilterBar({
       </div>
 
       {/* Row 2: tools */}
-      <div style={{
+      <div className="filter-tools" style={{
         display: 'flex', alignItems: 'center', gap: 8,
         marginTop: 10, flexWrap: 'wrap',
       }}>
@@ -353,13 +360,13 @@ export function FilterBar({
         </div>
 
         {/* Result count + reset */}
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div className="filter-result" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
           <span
             className="eyebrow"
             aria-live="polite"
             aria-label={`${filteredCount} élément${filteredCount > 1 ? 's' : ''} affiché${filteredCount > 1 ? 's' : ''}`}
           >
-            {filteredCount}&nbsp;{activeTab === 'niches' ? 'niche' : 'idée'}{filteredCount > 1 ? 's' : ''}
+            {filteredCount}&nbsp;{filteredCount > 1 ? itemLabel.plural : itemLabel.singular}
           </span>
 
           {isFiltered && (

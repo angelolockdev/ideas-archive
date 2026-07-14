@@ -80,7 +80,7 @@ export function IdeaGrid({
             {viewMode === 'grid' ? (
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
                 gap: 14,
               }}>
                 {monthIdeas.map((idea, i) => (
@@ -129,7 +129,7 @@ function SkeletonGrid({ viewMode }: { viewMode: ViewMode }) {
       {viewMode === 'grid' ? (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
           gap: 14,
         }}>
           {items.map((_, i) => (

@@ -1,7 +1,7 @@
-import { useRef, useCallback } from 'react'
 import { Star, FolderPlus, ChevronRight } from 'lucide-react'
 import type { Idea, Collection } from '../types'
 import { CATEGORIES, CAT_COLORS, CAT_ICONS, DIFFICULTY_LABELS } from '../types'
+import { useDirectionalGlow } from '../hooks/useDirectionalGlow'
 
 interface IdeaCardProps {
   idea: Idea
@@ -20,18 +20,7 @@ export function IdeaCard({
 }: IdeaCardProps) {
   const starred = idea.status === 'starred'
   const catColor = CAT_COLORS[idea.category] || '#9ca3af'
-  const cardRef = useRef<HTMLDivElement>(null)
-
-  // Directional glow — track mouse position relative to card
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const card = cardRef.current
-    if (!card) return
-    const rect = card.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width)  * 100
-    const y = ((e.clientY - rect.top)  / rect.height) * 100
-    card.style.setProperty('--mx', `${x}%`)
-    card.style.setProperty('--my', `${y}%`)
-  }, [])
+  const { cardRef, handleMouseMove } = useDirectionalGlow()
 
   if (viewMode === 'list') {
     return (
